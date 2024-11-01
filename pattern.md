@@ -1,41 +1,30 @@
 ATMSystem/
 │
-├── src/
-│   ├── main.cpp                      // 진입점
-│   ├── ATM/                          // ATM 관련 클래스
-│   │   ├── ATM.h                     // ATM 클래스 정의
-│   │   ├── ATMMachine.h              // ATM 기계 클래스 정의
-│   │   ├── ATMFactory.h              // ATM 팩토리 인터페이스
-│   │   └── ConcreteATMs.h            // 구체적인 ATM 클래스들
-│   │
-│   ├── transactions/                  // 트랜잭션 관련 클래스
-│   │   ├── Transaction.h              // 트랜잭션 기본 클래스
-│   │   ├── Withdraw.h                 // 인출 트랜잭션
-│   │   ├── Deposit.h                  // 예금 트랜잭션
-│   │   ├── Transfer.h                 // 송금 트랜잭션
-│   │   └── Command.h                  // 커맨드 패턴 구현
-│   │
-│   ├── user/                          // 사용자 관련 클래스
-│   │   ├── User.h                     // 사용자 클래스
-│   │   └── Account.h                  // 계좌 클래스
-│   │
-│   ├── observers/                     // 옵저버 패턴 관련 클래스
-│   │   ├── Observer.h                 // 옵저버 인터페이스
-│   │   ├── BalanceObserver.h          // 잔액 관찰자
-│   │   └── CashObserver.h             // 현금 관찰자
-│   │
-│   └── strategies/                    // 전략 패턴 관련 클래스
-│       ├── Strategy.h                 // 전략 인터페이스
-│       ├── CashWithdrawalStrategy.h   // 현금 인출 전략
-│       └── TransferStrategy.h          // 송금 전략
+├── src/                     // 소스 코드
+│   ├── main.cpp             // 프로그램 진입점
+│   ├── object/              // 객체 관련 파일
+│   │   ├── ATM.cpp          // ATM 클래스 구현
+│   │   ├── ATM.h            // ATM 클래스 헤더
+│   │   ├── User.cpp         // User 클래스 구현
+│   │   └── User.h           // User 클래스 헤더
+│   └── strategy/            // 전략 관련 파일
+│       ├── TransactionStrategy.h // 전략 인터페이스
+│       ├── WithdrawalStrategy.cpp // 인출 전략 구현
+│       ├── WithdrawalStrategy.h
+│       ├── DepositStrategy.cpp    // 입금 전략 구현
+│       ├── DepositStrategy.h
+│       ├── TransferStrategy.cpp    // 이체 전략 구현
+│       └── TransferStrategy.h
 │
-├── include/                           // 헤더 파일
-│   ├── ATM.h                          // ATM 관련 헤더
-│   ├── Transaction.h                  // 트랜잭션 관련 헤더
-│   ├── User.h                         // 사용자 관련 헤더
-│   └── Observer.h                     // 옵저버 관련 헤더
+├── tests/                   // 테스트 코드
+│   ├── ATMTest.cpp          // ATM 클래스 테스트
+│   ├── WithdrawalTest.cpp   // 인출 전략 테스트
+│   ├── DepositTest.cpp      // 입금 전략 테스트
+│   └── TransferTest.cpp     // 이체 전략 테스트
 │
-└── tests/                             // 테스트 관련 파일
-    ├── ATMMachineTest.cpp             // ATM 기계 테스트
-    ├── TransactionTest.cpp            // 트랜잭션 테스트
-    └── UserTest.cpp                   // 사용자 테스트
+├── docs/                    // 문서화
+│   ├── design.md            // 설계 문서
+│   ├── user_manual.md       // 사용자 매뉴얼
+│   └── api_reference.md      // API 레퍼런스
+│
+└── CMakeLists.txt           // CMake 설정 파일
