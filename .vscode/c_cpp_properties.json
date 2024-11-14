@@ -5,16 +5,13 @@
       "includePath": [
         "${workspaceFolder}/**"
       ],
-      "defines": [
-        "_DEBUG",
-        "UNICODE",
-        "_UNICODE"
-      ],
-      "windowsSdkVersion": "10.0.22621.0",
       "compilerPath": "/usr/bin/clang",
       "cStandard": "${default}",
       "cppStandard": "${default}",
-      "intelliSenseMode": "macos-clang-arm64"
+      "intelliSenseMode": "macos-clang-arm64",
+      "compilerArgs": [
+        ""
+      ]
     }
   ],
   "version": 4
