@@ -1,24 +1,40 @@
 #ifndef ATM_H
 #define ATM_H
 
-#include "../strategy/TransactionStrategy.h"
+#include <string>
+using namespace std;
+
+// 전방 선언
+class Bank;
+class MoneyDict;
+class Session;
 
 class ATM {
 public:
-    void setTransactionStrategy(TransactionStrategy* strategy) {
-        this->strategy = strategy;
-    }
+    Bank* primery_bank;
+    string serial_number;
+    bool is_single_bank_atm;
+    bool is_unilingual_atm;
+    int language_state;
+    MoneyDict* remained_money = nullptr;
+    MoneyDict* slot_money = nullptr;
+    const int cash_maximum = 50;
+    const int check_maximum = 30;
+    const int input_fee = 0;
+    const int withdraw_amount_max = 50000;
+    const int withdraw_count_threshold = 3;
+    Session* present_session = nullptr;
 
-    void executeTransaction(int amount) {
-        if (strategy) {
-            strategy->execute(amount);
-        } else {
-            std::cout << "No transaction strategy set." << std::endl;
-        }
-    }
+    // 생성자 (public)
+    ATM(Bank* bank, string serial_num, bool is_single, bool is_unilingual);
 
-private:
-    TransactionStrategy* strategy = nullptr;
+    // 소멸자 (public)
+    ~ATM();
+
+    // 업데이트 함수들
+    void update_slot_money(MoneyDict* input_money);
+    void update_remained_money(MoneyDict* input_money);
+    void update_session(Session* new_session);
 };
 
 #endif // ATM_H
