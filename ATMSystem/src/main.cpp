@@ -1,21 +1,42 @@
+// main.cpp
 #include <iostream>
-#include "object/ATM.h"
-#include "strategy/WithdrawalStrategy.h"
-#include "strategy/DepositStrategy.h"
-#include "strategy/TransferStrategy.h"
+#include "Bank.h"
+#include "MoneyDict.h"
 
 int main() {
-    ATM atm;
+    // Å×½ºÆ® ÄÚµå
 
-    // ì‚¬ìš©ì ì¸ì¦ ë° ê±°ë˜ ìˆ˜í–‰ ì˜ˆì‹œ
-    atm.setTransactionStrategy(new WithdrawalStrategy());
-    atm.executeTransaction(100); // 100 ë‹¨ìœ„ ì¸ì¶œ
+    // ÀºÇà »ı¼º
+    Bank* bank = new Bank("Kakao Bank");
+    std::cout << bank->getBankName() << std::endl;
 
-    atm.setTransactionStrategy(new DepositStrategy());
-    atm.executeTransaction(200); // 200 ë‹¨ìœ„ ì…ê¸ˆ
+    // ÀºÇà¸í º¯°æ
+    bank->setBankName("KB Bank");
+    std::cout << bank->getBankName() << std::endl;
 
-    atm.setTransactionStrategy(new TransferStrategy());
-    atm.executeTransaction(150); // 150 ë‹¨ìœ„ ì´ì²´
+    // MoneyDict °´Ã¼ »ı¼º
+    MoneyDict atm_cash;
+
+    // Çö±İ Ãß°¡
+    atm_cash.addCash(50000, 10);
+    atm_cash.addCash(10000, 20);
+
+    // ¼öÇ¥ Ãß°¡
+    atm_cash.addCheck(200000);
+    atm_cash.addCheck(150000);
+
+    // Á¤º¸ Ãâ·Â
+    std::cout << "ATM Çö±İ ÃÑ¾×: " << atm_cash.getCashAmount() << "¿ø\n";
+    std::cout << "ATM ÃÑ¾×: " << atm_cash.getTotalAmount() << "¿ø\n";
+
+    // ¼öÇ¥ ¸ñ·Ï Ãâ·Â
+    atm_cash.printChecks();
+
+    // Çö±İ ¸ñ·Ï Ãâ·Â
+    atm_cash.printCashes();
+
+    // ¸Ş¸ğ¸® ÇØÁ¦
+    delete bank;
 
     return 0;
 }
