@@ -2,9 +2,7 @@
 #define CARD_H
 
 #include <string>
-
-// Account 클래스의 전방 선언
-class Account;
+#include <Account.h>
 
 class Card {
 public:
@@ -23,6 +21,8 @@ public:
     // 복사 생성자 및 복사 대입 연산자
     Card(const Card& other);
     Card& operator=(const Card& other);
+
+    Account* getAccount() {}
 
 private:
     // private 멤버 함수 및 변수 필요 시 정의 가능
