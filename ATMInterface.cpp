@@ -261,3 +261,7 @@ void ATMInterface::update_card(Card* card){
     p_atm->update_session(new Session());
 
 }
+
+Card* matchcard(Bank* bank, string card_numm, string pw){
+    return bank->find_card(card_numm, pw);
+}

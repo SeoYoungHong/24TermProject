@@ -29,7 +29,7 @@ void Bank::append_user_account(Account* account){
     return user_account_list.push_back(account);
 }
 
-Card* Bank::find_account(string input_id,string input_pw)  {
+Card* Bank::find_card(string input_id,string input_pw)  {
     for (const auto& card : user_card_list) {
         if (card->match_credentials(input_id, input_pw)) {
             return card; // 일치하는 계정을 반환

@@ -45,6 +45,7 @@ public:
     Card* choiceCard();
     Account* choiceAccount();
     Account* createAccount();
+    Card* matchcard(Bank* bank, string card_numm, string pw);
     
 };
 
