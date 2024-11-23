@@ -32,9 +32,9 @@ public:
     void printByATM();
     void insertMoney();
     void checkFee();
-    void transfer();
+    void transfer(Account* target_account, int amount);
     void changeLanguage();
-    void performTransaction(int option);
+    // void performTransaction(int option);
     void depositCash();
     void withdrawCash();
     void checkFeeDetails();
@@ -50,6 +50,9 @@ public:
     void insert_check();
     void atm_to_account();
     int withdraw();
+    bool account_to_account();
+    bool slot_to_account();
+    Account* check_account_num();
     
 };
 

@@ -46,3 +46,11 @@ Card* Bank::find_card_by_number(const std::string& cardnum) {
     }
     return nullptr; // 일치하는 카드가 없는 경우
 }
+Account* Bank::find_account_by_number(const std::string& account_num) {
+    for (const auto& account : user_account_list) {
+        if (account->get_account_number() == account_num) { // 카드 번호 비교
+            return account;
+        }
+    }
+    return nullptr; // 일치하는 카드가 없는 경우
+}

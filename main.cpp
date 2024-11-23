@@ -83,7 +83,6 @@ int tranjection_select_page(ATMInterface* atm_interface){
 //money slot-> card account
 int tranjection_deposit_money_page(ATMInterface* atm_interface){
     
-    MoneyDict* moneydict = new MoneyDict();
     while(true){
         int choice;
         cout << "1. insert cach ||2. insert check ||3. deposit || q. Exit || l. change language "<<endl;
@@ -119,7 +118,25 @@ int tranjection_withdraw_page(ATMInterface* atm_interface){
 //1. slot -> account
 //2. account -> account
 int tranjection_transfer_page(ATMInterface* atm_interface){
-   
+    int choice;
+        cout << "1. slot to account ||2. account to account || q. Exit || l. change language "<<endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                atm_interface->slot_to_account();
+                break;
+            case 2:
+                atm_interface->account_to_account();
+
+                break;
+            case 3:
+                return 0;
+            case int('q'):
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
     return 0;
 }
 
@@ -139,6 +156,7 @@ int go_and_stop_page(ATMInterface* atm_interface){
         default:
             cout << "Invalid choice. Please try again.\n";
             go_and_stop_page(atm_interface);
+            break;
     }
     return 0;
 }

@@ -136,36 +136,35 @@ void ATMInterface::checkFee() {
     checkFeeDetails();
 }
 
-void ATMInterface::transfer() {
-    cout << "Initiating funds transfer...\n";
-    cout << "Transfer completed successfully.\n";
+void ATMInterface::transfer(Account* target_account, int amount) {
+    target_account->update_amount(target_account->get_amount()+amount);
 }
 
 void ATMInterface::changeLanguage() {
     cout << "Language changed successfully.\n";
 }
 
-void ATMInterface::performTransaction(int option) {
-    switch (option) {
-        case 1:
-            insertMoney();
-            break;
-        case 2:
-            withdrawCash();
-            break;
-        case 3:
-            checkFee();
-            break;
-        case 4:
-            transfer();
-            break;
-        case 5:
-            changeLanguage();
-            break;
-        default:
-            cout << "Invalid transaction option. Please try again.\n";
-    }
-}
+// void ATMInterface::performTransaction(int option) {
+//     switch (option) {
+//         case 1:
+//             insertMoney();
+//             break;
+//         case 2:
+//             withdrawCash();
+//             break;
+//         case 3:
+//             checkFee();
+//             break;
+//         case 4:
+//             transfer();
+//             break;
+//         case 5:
+//             changeLanguage();
+//             break;
+//         default:
+//             cout << "Invalid transaction option. Please try again.\n";
+//     }
+// }
 
 void ATMInterface::depositCash() {
     double amount;
@@ -276,10 +275,10 @@ void ATMInterface::insert_cach() {
 void ATMInterface::insert_check(){
     while (true){
         int amount;
-        cout<<"\"q\" is break"<<endl;
+        cout<<"\"9\" is break"<<endl;
         cout<<"writ your check amount: ";
         cin>>amount;
-        if(amount ==int('q')){
+        if(amount ==9){
             break;
         }
         p_atm->slot_money->addCheck(amount);
@@ -314,4 +313,50 @@ int ATMInterface::withdraw(){
         cout << "we don't have money"<<endl;
     }
 
+}
+
+Account* ATMInterface::check_account_num(){
+    string account_num;
+    Account* account = nullptr;
+    Bank* bank = choiceBank();
+    int retry_count =0;
+    cout << "account num: ";
+    cin >>account_num;
+    account = bank->find_account_by_number(account_num);
+    if(account==nullptr){
+        cout << "account num: "<<account_num<<"not exist"<<endl;
+    }
+    return account;
+}
+
+bool ATMInterface::account_to_account(){
+    Account* target_account = check_account_num();
+    int amount;
+    if(target_account==nullptr){
+        return false;
+    }
+    cout << "how much to transfer?"<<endl;
+    cin>>amount;
+    Account* p_account = p_card->getAccount();
+    if(amount>p_account->get_amount()){
+        return false;
+    }else{
+        transfer(target_account, amount);
+        return true;
+    }
+    
+}
+
+bool ATMInterface::slot_to_account(){
+    insert_cach();
+    insert_check();
+    Account* target_account = check_account_num();
+    int amount = p_atm->slot_money->getTotalAmount();
+    if(target_account==nullptr){
+        return false;
+    }
+    *p_atm->remained_money = *(p_atm->slot_money)+*(p_atm->remained_money);
+    p_atm->reset_slot_money();
+    transfer(target_account, amount);
+    return true;
 }
