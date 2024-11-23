@@ -294,5 +294,24 @@ void ATMInterface::atm_to_account(){
     cout<<"solot amount: "<<solot_amount<< "account amount: " <<account_amount<<endl;
     p_card->getAccount()->update_amount(solot_amount+account_amount);
     *p_atm->remained_money = *(p_atm->slot_money)+*(p_atm->remained_money);
-    p_atm->reset_slot_money();
+    p_atm->reset_slot_money(); 
+}
+
+int ATMInterface::withdraw(){
+    Account* p_account = p_card->getAccount();
+    int get_amount;
+    cout <<"your account amount: "<<p_account->get_amount()<<endl;
+    cout << "how much do you get the amount?";
+    cin>>get_amount;
+    if(get_amount>p_account->get_amount()){
+        cout<<get_amount<<"don't have that much money."<<endl;
+        cout<<"you have only"<<p_account->get_amount()<<endl;
+    }else if(p_atm->remained_money->canPay(get_amount)){
+        MoneyDict paid_money = p_atm->remained_money->pay(get_amount);
+        cout<<"money paid: "<<get_amount<<endl;
+        paid_money.printCashes();
+    }else{
+        cout << "we don't have money"<<endl;
+    }
+
 }

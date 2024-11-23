@@ -112,7 +112,7 @@ int tranjection_deposit_money_page(ATMInterface* atm_interface){
 
 //account -> slot
 int tranjection_withdraw_page(ATMInterface* atm_interface){
-   
+    atm_interface->withdraw();
     return 0;
 }
 

@@ -59,7 +59,8 @@ public:
     // ���� ���� ��� �Լ� �߰�
     void printCashes() const;
     MoneyDict operator+(const MoneyDict& other) const;
-    
+    bool canPay(int amount);
+    MoneyDict pay(int amount);
 };
 
 #endif // MONEYDICT_H

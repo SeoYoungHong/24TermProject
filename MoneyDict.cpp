@@ -131,3 +131,54 @@ MoneyDict MoneyDict::operator+(const MoneyDict& other) const {
     result.updateTotals();
     return result;
 }
+
+bool MoneyDict::canPay(int amount) {
+    std::map<int, int> temp_cashes = cashes; // 원본 cashes를 보존
+    int remaining = amount;
+
+    // 큰 단위부터 확인
+    for (auto it = temp_cashes.rbegin(); it != temp_cashes.rend(); ++it) {
+        int denomination = it->first;
+        int& available_count = it->second;
+
+        int needed = remaining / denomination; // 필요한 지폐 수
+        int to_use = std::min(needed, available_count); // 실제 사용할 수 있는 지폐 수
+        remaining -= to_use * denomination; // 남은 금액 갱신
+
+        if (remaining == 0) break; // 더 이상 지불할 금액이 없으면 종료
+    }
+
+    return (remaining == 0); // 남은 금액이 0이면 지급 가능
+}
+
+MoneyDict MoneyDict::pay(int amount) {
+    MoneyDict paid_money; // 반환할 지급된 금액 정보를 담을 객체
+
+    if (!canPay(amount)) {
+        std::cout << "Cannot pay the amount: " << amount << "\n";
+        return paid_money; // 빈 객체 반환
+    }
+
+    int remaining = amount;
+
+    // 큰 단위부터 실제 차감
+    for (auto it = cashes.rbegin(); it != cashes.rend(); ++it) {
+        int denomination = it->first;
+        int& available_count = it->second;
+
+        int needed = remaining / denomination; // 필요한 지폐 수
+        int to_use = std::min(needed, available_count); // 실제 사용할 수 있는 지폐 수
+        available_count -= to_use; // 실제 지폐 차감
+        remaining -= to_use * denomination; // 남은 금액 갱신
+
+        // 지급된 지폐를 paid_money 객체에 추가
+        paid_money.addCash(denomination, to_use);
+
+        if (remaining == 0) break; // 더 이상 지불할 금액이 없으면 종료
+    }
+
+    updateTotals(); // 총액 업데이트
+    std::cout << "Paid " << amount << " successfully.\n";
+    return paid_money; // 지급된 금액 반환
+}
+

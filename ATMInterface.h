@@ -49,7 +49,8 @@ public:
     void insert_cach();
     void insert_check();
     void atm_to_account();
+    int withdraw();
     
 };
 
-#endif // ATM_INTERFACE_H
+#endif 
