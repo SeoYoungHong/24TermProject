@@ -37,3 +37,12 @@ Card* Bank::find_card(string input_id,string input_pw)  {
     }
     return nullptr; // 일치하는 계정을 찾지 못한 경우
 }
+
+Card* Bank::find_card_by_number(const std::string& cardnum) {
+    for (const auto& card : user_card_list) {
+        if (card->get_card_num() == cardnum) { // 카드 번호 비교
+            return card;
+        }
+    }
+    return nullptr; // 일치하는 카드가 없는 경우
+}

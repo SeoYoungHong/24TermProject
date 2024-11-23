@@ -47,6 +47,7 @@ int main() {
     return 0;
 }
 int card_account_setup_page(ATMInterface* atm_interface){
+    atm_interface->createCard();
     return 0;
 }
 

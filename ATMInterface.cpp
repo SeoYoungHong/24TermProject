@@ -35,54 +35,43 @@ ATM* ATMInterface::createATM(){
 }
 
 void ATMInterface::insertCard() {
-    bool response;
-    if(is_inserted){
-        cout  << "already card inserted. do you wnat to chage the card?(1: yes, 0: no)"<<endl;
-        cin >> response;
-        if(response){
-            is_inserted=false;
-            cout << "card return"<<endl;
-        }else{
-            cout << "card inserted"<<endl;
-        }
-    }
-    if(!is_inserted){
-        if(user_card_list.size()==0){
-            cout << "you don'y have any card. Have you make the card?(1:yes, 0:no)"<<endl;
-            cin >> response;
-
-            if(response){
-                Card* creaed_card = createCard();
-                append_user_card(creaed_card);
-                update_card(creaed_card);
+    string card_num;
+    string card_pw;
+    Card* card = nullptr;
+    Bank* choiced_bank = choiceBank();
+    int retry_count =0;
+    cout << "card num: ";
+    cin >>card_num;
+    card = choiced_bank->find_card_by_number(card_num);
+    if(card==nullptr){
+        cout << "card num: "<<card_num<<"not exist"<<endl;
+    }else{
+        while(retry_count<3){
+        
+            cout << "card pw: ";
+            cin >>card_pw;
+            if(card->p_password!=card_pw){
+                retry_count++;
+                cout <<"pw fail retry"<<retry_count<<"/3"<<endl;
+                continue;
             }else{
-                cout<< "go to the first page";
+                p_card = card;
+                Session* new_session = new Session();
+                p_atm->update_session(new_session);
+                is_inserted = true;
+                p_is_admin =  card->p_is_admin;
+                cout <<"card insert and session start"<<endl;
+                break;
             }
-        }
-        else{
-            update_card(choiceCard());
-            cout << "Card Inserted." << endl;
-            is_inserted = true;
-            if(p_card->p_is_admin){
-                this->p_is_admin = true;
-                cout << "inserted card is admin" << endl;
-            }
-            else{
-                this -> p_is_admin = false; 
-                cout << "inserted card is not admin" << endl;
-            }  
         }
     }
+    
     
 }
 
 Account* ATMInterface:: createAccount(){
     Bank* choice_bank;
-    if(p_atm->is_single_bank_atm){
-        choice_bank = p_atm->primery_bank;
-    }else{
-        choice_bank = choiceBank();
-    }
+    choice_bank = choiceBank();
     Account* p_account = new Account(choice_bank);
     append_user_account(p_account);
     return p_account;

@@ -24,6 +24,7 @@ public:
     void append_user_card(Card* card);
     void append_user_account(Account* account);
     Card* find_card(string input_id,string input_pw);
+    Card* find_card_by_number(const std::string& cardnum);
 };
 
 #endif // BANK_H
