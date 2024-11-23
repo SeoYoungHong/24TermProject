@@ -3,17 +3,16 @@
 
 #include <iostream>
 #include <string>
+#include <Bank.h>
 using namespace std;
 
-// 전방 선언: Bank 클래스
-class Bank;
-
 class Account {
-public:
+private:
     string p_account_number;
     Bank* p_bank;
     int amount;
 
+public:
     // 생성자 (public)
     Account(string account_number, Bank* bank);
 
