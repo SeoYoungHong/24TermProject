@@ -1,7 +1,6 @@
 // MoneyDict.cpp
 #include "MoneyDict.h"
-
-// ������
+using namespace std;
 MoneyDict::MoneyDict()
     : check_count(0), cash_count(0), total_amount(0), cash_amount(0) {
     // ȭ�� ���� �ʱ�ȭ

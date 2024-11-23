@@ -2,7 +2,8 @@
 #define CARD_H
 
 #include <string>
-#include <Account.h>
+
+class Account; // 전방 선언으로 순환 참조 방지
 
 class Card {
 public:
@@ -18,14 +19,9 @@ public:
     // 소멸자
     ~Card();
 
-    // 복사 생성자 및 복사 대입 연산자
-    Card(const Card& other);
-    Card& operator=(const Card& other);
-
-    Account* getAccount() {}
-
-private:
-    // private 멤버 함수 및 변수 필요 시 정의 가능
+    // 멤버 함수
+    Account* getAccount();
+    std::string get_card_num();
 };
 
 #endif // CARD_H

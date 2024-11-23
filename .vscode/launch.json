@@ -3,11 +3,22 @@
   "configurations": [
     {
       "name": "C/C++ Runner: Debug Session",
-      "type": "lldb",
+      "type": "cppdbg",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/mac_air/coding/termproject/ATMSystem/src",
-      "program": "/Users/mac_air/coding/termproject/ATMSystem/src/build/Debug/outDebug"
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "c:/coding/oop/24TermProject",
+      "program": "c:/coding/oop/24TermProject/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
     }
   ]
 }

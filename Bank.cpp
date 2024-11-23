@@ -1,15 +1,11 @@
 // Bank.cpp
 #include "Bank.h"
-
+using namespace std;
 // 생성자
 Bank::Bank(const std::string& name) : bank_name(name) {}
 
 // 소멸자
 Bank::~Bank() {
-    // 연결된 계좌까지 지우려면 아래 코드를 사용하세요
-    // for (Account* account : accounts) {
-    //     delete account;
-    // }
     std::cout << bank_name << "가 삭제되었습니다.\n";
 }
 
@@ -20,4 +16,15 @@ std::string Bank::getBankName() const {
 
 void Bank::setBankName(const std::string& name) {
     bank_name = name;
+}
+
+void Bank::append_user_card(Card* card){
+    cout << "user account appended, card num: "<<endl;
+    return user_card_list.push_back(card);
+}
+
+
+void Bank::append_user_account(Account* account){
+    cout << "user account appended, acount num: "<<endl;
+    return user_account_list.push_back(account);
 }

@@ -2,15 +2,13 @@
 #define ATM_H
 
 #include <string>
-#include <Bank.h>
-#include <MoneyDict.h>
+#include "Bank.h"
+#include "MoneyDict.h"
+#include "Session.h"
 
 using namespace std;
 
-// 전방 선언
-class Bank;
-class MoneyDict;
-class Session;
+
 
 class ATM {
 public:
@@ -28,7 +26,7 @@ public:
     Session* present_session = nullptr;
 
     // 생성자 (public)
-    ATM(Bank* bank, string serial_num, bool is_single, bool is_unilingual);
+    ATM(Bank* bank, bool is_single, bool is_unilingual);
 
     // 소멸자 (public)
     ~ATM();

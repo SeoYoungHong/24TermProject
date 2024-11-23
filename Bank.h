@@ -4,22 +4,25 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
+#include "Account.h"
+#include "Card.h"
+
+using namespace std;
 
 class Bank {
 private:
-    std::string bank_name;
+    string bank_name;
+    vector<Account*> user_account_list;
+    vector<Card*> user_card_list;
 
 public:
-    // ������
     Bank(const std::string& name);
-
-    // �Ҹ���
     ~Bank();
-
-    // ���� �̸� ������
     std::string getBankName() const;
-
     void setBankName(const std::string& name);
+    void append_user_card(Card* card);
+    void append_user_account(Account* account);
 };
 
 #endif // BANK_H
