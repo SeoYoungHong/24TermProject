@@ -25,7 +25,7 @@ string generateSerialNumber() {
 // 생성자 정의
 ATM::ATM(Bank* bank, bool is_single, bool is_unilingual)
     : primery_bank(bank), serial_number(generateSerialNumber()), is_single_bank_atm(is_single),
-      is_unilingual_atm(is_unilingual), language_state(0), remained_money(nullptr), slot_money(nullptr),
+      is_unilingual_atm(is_unilingual), language_state(0),
       present_session(nullptr) {
     // 필요한 초기화 작업 (기본값이 있다면)
 }

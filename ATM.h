@@ -17,8 +17,8 @@ public:
     bool is_single_bank_atm;
     bool is_unilingual_atm;
     int language_state;
-    MoneyDict* remained_money = nullptr;
-    MoneyDict* slot_money = nullptr;
+    MoneyDict* remained_money = new MoneyDict();
+    MoneyDict* slot_money = new MoneyDict();
     const int cash_maximum = 50;
     const int check_maximum = 30;
     int input_fee = 0;

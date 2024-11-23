@@ -16,7 +16,8 @@ void MoneyDict::addCash(int denomination, int count) {
         cashes[denomination] += count;
         updateTotals();
     } else {
-        std::cout << "��ȿ���� ���� ȭ�� �����Դϴ�.\n";
+        std::cerr << "Error: Invalid denomination.\n";
+        return; // 추가 처리
     }
 }
 

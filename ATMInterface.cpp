@@ -97,16 +97,13 @@ Card* ATMInterface::createCard(){
             cout<< "go to the first page";
         }
     }else{
-        this->p_card = choiceCard();
-        cout << "Card Inserted." << endl;
-        if(p_card->p_is_admin){
-            this->p_is_admin = true;
-            cout << "inserted card is admin" << endl;
+        cout << "you have account. Have you make the account?(1:yes, 0:no)"<<endl;
+        cin >> response;
+        if(response){
+            p_account = createAccount();
+        }else{
+            p_account = choiceAccount();
         }
-        else{
-            this -> p_is_admin = false; 
-            cout << "inserted card is not admin" << endl;
-        }  
     }
     cout << "Enter card number: ";
     cin >> p_card_number;
@@ -251,6 +248,41 @@ void ATMInterface::update_card(Card* card){
 
 }
 
-Card* matchcard(Bank* bank, string card_numm, string pw){
+Card* ATMInterface::matchcard(Bank* bank, string card_numm, string pw){
     return bank->find_card(card_numm, pw);
+}
+
+void ATMInterface::insert_cach() {
+    int count_1000 = 0, count_5000 = 0, count_10000 = 0, count_50000 = 0;
+    MoneyDict* test = new MoneyDict();
+    cout << "Insert 1000 won bills: ";
+    cin >> count_1000;
+    cout << "Insert 5000 won bills: ";
+    cin >> count_5000;
+    cout << "Insert 10000 won bills: ";
+    cin >> count_10000;
+    cout << "Insert 50000 won bills: ";
+    cin >> count_50000;
+    if (count_1000 < 0 || count_5000 < 0 || count_10000 < 0 || count_50000 < 0) {
+        cout << "Error: Bill counts cannot be negative." << endl;
+        return;
+    }
+    p_atm->slot_money->addCash(1000, count_1000);
+    p_atm->slot_money->addCash(5000, count_5000);
+    p_atm->slot_money->addCash(10000, count_10000);
+    p_atm->slot_money->addCash(50000, count_50000);
+}
+
+void ATMInterface::insert_check(){
+    while (true){
+        int amount;
+        cout<<"\"q\" is break"<<endl;
+        cout<<"writ your check amount: ";
+        cin>>amount;
+        if(amount ==int('q')){
+            break;
+        }
+        p_atm->slot_money->addCheck(amount);
+    }
+    
 }
