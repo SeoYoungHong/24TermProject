@@ -7,7 +7,7 @@
 #include <string>
 
 using namespace std;
-
+class Card;
 // 12자리 계좌 번호를 생성하는 함수 정의
 string generateAccountNumber() {
     random_device rd;           // 시드 값 생성
@@ -48,6 +48,6 @@ string Account::get_account_number() {
 
 void Account::append_user_card(Card* card){
     cout << "user account appended, card num: "<<endl;
-    //p_bank->append_user_card(card);
-    // user_card_list.push_back(card);
+    p_bank->append_user_card(card);
+    user_card_list.push_back(card);
 }

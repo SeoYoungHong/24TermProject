@@ -76,7 +76,7 @@ void ATMInterface::insertCard() {
     
 }
 
-void ATMInterface:: createAccount(){
+Account* ATMInterface:: createAccount(){
     Bank* choice_bank;
     if(p_atm->is_single_bank_atm){
         choice_bank = p_atm->primery_bank;
@@ -85,6 +85,7 @@ void ATMInterface:: createAccount(){
     }
     Account* p_account = new Account(choice_bank);
     append_user_account(p_account);
+    return p_account;
 }
 
 Card* ATMInterface::createCard(){
@@ -102,7 +103,7 @@ Card* ATMInterface::createCard(){
         cout << "you don'y have any account. Have you make the account?(1:yes, 0:no)"<<endl;
         cin >> response;
         if(response){
-            createAccount();
+            p_account = createAccount();
         }else{
             cout<< "go to the first page";
         }

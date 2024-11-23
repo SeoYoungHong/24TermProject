@@ -44,7 +44,7 @@ public:
     Bank* choiceBank();
     Card* choiceCard();
     Account* choiceAccount();
-    void createAccount();
+    Account* createAccount();
     
 };
 
