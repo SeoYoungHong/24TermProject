@@ -23,6 +23,7 @@ public:
     void setBankName(const std::string& name);
     void append_user_card(Card* card);
     void append_user_account(Account* account);
+    Card* find_account(string input_id,string input_pw);
 };
 
 #endif // BANK_H

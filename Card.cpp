@@ -20,3 +20,7 @@ Account* Card::getAccount(){
 string Card::get_card_num(){
     return p_card_number;
 }
+
+bool Card::match_credentials(string card_num, string input_pw){
+    return p_card_number == card_num && p_password == input_pw;
+}

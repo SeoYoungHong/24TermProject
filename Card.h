@@ -22,6 +22,7 @@ public:
     // 멤버 함수
     Account* getAccount();
     std::string get_card_num();
+    bool match_credentials(std::string card_num, std::string input_pw);
 };
 
 #endif // CARD_H
