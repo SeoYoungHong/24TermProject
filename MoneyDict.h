@@ -58,6 +58,8 @@ public:
 
     // ���� ���� ��� �Լ� �߰�
     void printCashes() const;
+    MoneyDict operator+(const MoneyDict& other) const;
+    
 };
 
 #endif // MONEYDICT_H

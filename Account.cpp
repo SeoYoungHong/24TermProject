@@ -25,6 +25,7 @@ string generateAccountNumber() {
 Account::Account(Bank* bank)
     : p_account_number(generateAccountNumber()), p_bank(bank), amount(0) {
     bank->append_user_account(this);
+    amount=0;
     cout << "[Construct] create account, account_number: " << p_account_number << endl;
 }
 
@@ -44,6 +45,9 @@ void Account::update_amount(int changed_amount) {
 // 잔액 업데이트 함수 정의
 string Account::get_account_number() {
     return p_account_number;
+}
+int Account::get_amount(){
+    return amount;
 }
 
 void Account::append_user_card(Card* card){

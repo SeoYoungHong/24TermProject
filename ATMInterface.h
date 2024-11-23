@@ -48,6 +48,7 @@ public:
     Card* matchcard(Bank* bank, string card_numm, string pw);
     void insert_cach();
     void insert_check();
+    void atm_to_account();
     
 };
 

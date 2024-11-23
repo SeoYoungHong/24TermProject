@@ -28,6 +28,7 @@ public:
     void update_amount(int changed_amount);
     string get_account_number();
     void append_user_card(Card* card);
+    int get_amount();
 };
 
 #endif // ACCOUNT_H

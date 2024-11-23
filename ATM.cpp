@@ -69,3 +69,8 @@ void ATM::update_session(Session* new_session) {
     }
     present_session = new_session;  // 새로운 세션 할당
 }
+
+void ATM::reset_slot_money(){
+    delete slot_money;
+    slot_money = new MoneyDict(); 
+}

@@ -32,6 +32,7 @@ public:
     ~ATM();
 
     // 업데이트 함수들
+    void reset_slot_money();
     void update_slot_money(MoneyDict* input_money);
     void update_remained_money(MoneyDict* input_money);
     void update_session(Session* new_session);

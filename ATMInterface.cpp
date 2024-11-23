@@ -286,3 +286,13 @@ void ATMInterface::insert_check(){
     }
     
 }
+
+void ATMInterface::atm_to_account(){
+    
+    int solot_amount =  p_atm ->slot_money->getTotalAmount();
+    int account_amount = p_card->getAccount()->get_amount();
+    cout<<"solot amount: "<<solot_amount<< "account amount: " <<account_amount<<endl;
+    p_card->getAccount()->update_amount(solot_amount+account_amount);
+    *p_atm->remained_money = *(p_atm->slot_money)+*(p_atm->remained_money);
+    p_atm->reset_slot_money();
+}

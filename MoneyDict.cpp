@@ -119,3 +119,15 @@ void MoneyDict::printCashes() const {
         std::cout << "�ݾ�: " << pair.first << "��, ����: " << pair.second << "��\n";
     }
 }
+
+MoneyDict MoneyDict::operator+(const MoneyDict& other) const {
+    MoneyDict result = *this;
+
+    for (const auto& pair : other.cashes) {
+        result.cashes[pair.first] += pair.second;
+    }
+
+    result.checks.insert(result.checks.end(), other.checks.begin(), other.checks.end());
+    result.updateTotals();
+    return result;
+}

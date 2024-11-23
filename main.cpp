@@ -20,10 +20,12 @@ int main() {
     cout << "ATM System Initializing...\n";
 
     while (true) {
-        cout << "1. Card/Account Setup || 2. Insert Card || 3. tranjection select|| q. Exit || l. change language "<<endl;
+        if(atm_interface->is_inserted){
+            tranjection_select_page(atm_interface);
+        }
+        cout << "1. Card/Account Setup || 2. Insert Card || q. Exit || l. change language "<<endl;
         cout << "Enter your choice: ";
         cin >> choice;
-
         switch (choice) {
             case 1:
                 card_account_setup_page(atm_interface);
@@ -33,9 +35,6 @@ int main() {
                 if(atm_interface->p_is_admin){
                     admin_page(atm_interface);
                 }
-                break;
-            case 3:
-                tranjection_select_page(atm_interface);
                 break;
             case 4:
                 delete atm_interface;  // 메모리 해제
@@ -83,12 +82,13 @@ int tranjection_select_page(ATMInterface* atm_interface){
 
 //money slot-> card account
 int tranjection_deposit_money_page(ATMInterface* atm_interface){
-    int choice;
-    cout << "1. insert cach ||2. insert check ||3. deposit || q. Exit || l. change language "<<endl;
-    cout << "Enter your choice: ";
-    cin >> choice;
+    
     MoneyDict* moneydict = new MoneyDict();
     while(true){
+        int choice;
+        cout << "1. insert cach ||2. insert check ||3. deposit || q. Exit || l. change language "<<endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
         switch (choice) {
             case 1:
                 atm_interface->insert_cach();
@@ -97,9 +97,9 @@ int tranjection_deposit_money_page(ATMInterface* atm_interface){
                 atm_interface->insert_check();
                 break;
             case 3:
-                tranjection_transfer_page(atm_interface);
-                break;
-            case 4:
+                atm_interface->atm_to_account();
+                return 0;
+            case int('q'):
                 return 0;
             default:
                 cout << "Invalid choice. Please try again.\n";
