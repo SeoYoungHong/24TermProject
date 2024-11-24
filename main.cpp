@@ -14,29 +14,31 @@ int print_page(ATMInterface* atm_interface);
 int card_account_setup_page(ATMInterface* atm_interface);
 
 int main() {
-    int choice;
+    char choice;
     cout << "process start"<<endl;
     ATMInterface* atm_interface = new ATMInterface();
     cout << "ATM System Initializing...\n";
 
     while (true) {
-        if(atm_interface->is_inserted){
-            tranjection_select_page(atm_interface);
-        }
         cout << "1. Card/Account Setup || 2. Insert Card || q. Exit || l. change language "<<endl;
         cout << "Enter your choice: ";
         cin >> choice;
         switch (choice) {
-            case 1:
+            case '1':
                 card_account_setup_page(atm_interface);
                 break;
-            case 2:
+            case '2':
                 atm_interface->insertCard();
-                if(atm_interface->p_is_admin){
+                if(atm_interface->is_inserted){
+                    if(atm_interface->p_is_admin){
                     admin_page(atm_interface);
+                    }else{
+                        tranjection_select_page(atm_interface);
+                    }
                 }
+                
                 break;
-            case 4:
+            case '4':
                 delete atm_interface;  // 메모리 해제
                 return 0;
             default:
@@ -51,22 +53,22 @@ int card_account_setup_page(ATMInterface* atm_interface){
 }
 
 int tranjection_select_page(ATMInterface* atm_interface){
-    int choice;
+    char choice;
     cout << "1. insert money ||2. withdraw money||3. fransfer money || q. Exit || l. change language "<<endl;
     cout << "Enter your choice: ";
     cin >> choice;
 
     switch (choice) {
-        case 1:
+        case '1':
             tranjection_deposit_money_page(atm_interface);
             break;
-        case 2:
+        case '2':
             tranjection_withdraw_page(atm_interface);
             break;
-        case 3:
+        case '3':
             tranjection_transfer_page(atm_interface);
             break;
-        case 4:
+        case '4':
             return 0;
         default:
             cout << "Invalid choice. Please try again.\n";
@@ -84,21 +86,21 @@ int tranjection_select_page(ATMInterface* atm_interface){
 int tranjection_deposit_money_page(ATMInterface* atm_interface){
     
     while(true){
-        int choice;
+        char choice;
         cout << "1. insert cach ||2. insert check ||3. deposit || q. Exit || l. change language "<<endl;
         cout << "Enter your choice: ";
         cin >> choice;
         switch (choice) {
-            case 1:
+            case '1':
                 atm_interface->insert_cach();
                 break;
-            case 2:
+            case '2':
                 atm_interface->insert_check();
                 break;
-            case 3:
+            case '3':
                 atm_interface->atm_to_account();
                 return 0;
-            case int('q'):
+            case 'q':
                 return 0;
             default:
                 cout << "Invalid choice. Please try again.\n";
@@ -118,39 +120,39 @@ int tranjection_withdraw_page(ATMInterface* atm_interface){
 //1. slot -> account
 //2. account -> account
 int tranjection_transfer_page(ATMInterface* atm_interface){
-    int choice;
-        cout << "1. slot to account ||2. account to account || q. Exit || l. change language "<<endl;
-        cout << "Enter your choice: ";
-        cin >> choice;
-        switch (choice) {
-            case 1:
-                atm_interface->slot_to_account();
-                break;
-            case 2:
-                atm_interface->account_to_account();
+    char choice;
+    cout << "1. slot to account ||2. account to account || q. Exit || l. change language "<<endl;
+    cout << "Enter your choice: ";
+    cin >> choice;
+    switch (choice) {
+        case '1':
+            atm_interface->slot_to_account();
+            break;
+        case '2':
+            atm_interface->account_to_account();
 
-                break;
-            case 3:
-                return 0;
-            case int('q'):
-                return 0;
-            default:
-                cout << "Invalid choice. Please try again.\n";
-        }
+            break;
+        case '3':
+            return 0;
+        case 'q':
+            return 0;
+        default:
+            cout << "Invalid choice. Please try again.\n";
+    }
     return 0;
 }
 
 int go_and_stop_page(ATMInterface* atm_interface){
-    int choice;
+    char choice;
     cout << "1. more transaction || 2. print session history|| q. Exit || l. change language "<<endl;
     cout << "Enter your choice: ";
     cin >> choice;
 
     switch (choice) {
-        case 1:
+        case '1':
             tranjection_select_page(atm_interface);
             break;
-        case 2:
+        case '2':
             print_page(atm_interface);
             break;
         default:
@@ -162,20 +164,22 @@ int go_and_stop_page(ATMInterface* atm_interface){
 }
 
 int print_page(ATMInterface* atm_interface){
-    int choice;
+    char choice;
+    Session* presentsession = atm_interface->p_atm->present_session;
+    atm_interface->print_by_session(presentsession);
     cout << "1. retry || q. Exit || l. change language "<<endl;
     cout << "Enter your choice: ";
     cin >> choice;
 
     switch (choice) {
-        case 1:
+        case '1':
             break;
-        case 2:
+        case '2':
 
             break;
-        case 3:
+        case '3':
             break;
-        case 4:
+        case '4':
             return 0;
         default:
             cout << "Invalid choice. Please try again.\n";
@@ -184,19 +188,19 @@ int print_page(ATMInterface* atm_interface){
 }
 
 int admin_page(ATMInterface* atm_interface){
-    int choice;
+    char choice;
     cout << "1. show all of the tranjections || q. Exit || l. change language "<<endl;
     cout << "Enter your choice: ";
     cin >> choice;
 
     switch (choice) {
-        case 1:
+        case '1':
             break;
-        case 2:
+        case '2':
             break;
-        case 3:
+        case '3':
             break;
-        case 4:
+        case '4':
             return 0;
         default:
             cout << "Invalid choice. Please try again.\n";

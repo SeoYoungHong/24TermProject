@@ -4,7 +4,7 @@
 #include "Bank.h"
 #include "ATM.h"
 #include "Session.h"
-
+#include "History.h"
 using namespace std;
 
 // Constructor implementation
@@ -275,7 +275,7 @@ void ATMInterface::insert_cach() {
 void ATMInterface::insert_check(){
     while (true){
         int amount;
-        cout<<"\"9\" is break"<<endl;
+        cout<<"how much do you insert money> (9 is break)"<<endl;
         cout<<"writ your check amount: ";
         cin>>amount;
         if(amount ==9){
@@ -287,13 +287,16 @@ void ATMInterface::insert_check(){
 }
 
 void ATMInterface::atm_to_account(){
-    
     int solot_amount =  p_atm ->slot_money->getTotalAmount();
     int account_amount = p_card->getAccount()->get_amount();
     cout<<"solot amount: "<<solot_amount<< "account amount: " <<account_amount<<endl;
     p_card->getAccount()->update_amount(solot_amount+account_amount);
     *p_atm->remained_money = *(p_atm->slot_money)+*(p_atm->remained_money);
     p_atm->reset_slot_money(); 
+    History* new_history = new History("deposit",solot_amount, p_card->getAccount(), p_atm->present_session,
+    "입금후 잔액",  p_atm);
+    new_history->printHistory();
+    append_history(new_history);
 }
 
 int ATMInterface::withdraw(){
@@ -309,6 +312,10 @@ int ATMInterface::withdraw(){
         MoneyDict paid_money = p_atm->remained_money->pay(get_amount);
         cout<<"money paid: "<<get_amount<<endl;
         paid_money.printCashes();
+        History* new_history = new History("deposit",get_amount, p_card->getAccount(), p_atm->present_session,
+        "입금후 잔액",  p_atm);
+        new_history->printHistory();
+        append_history(new_history);
     }else{
         cout << "we don't have money"<<endl;
     }
@@ -356,7 +363,33 @@ bool ATMInterface::slot_to_account(){
         return false;
     }
     *p_atm->remained_money = *(p_atm->slot_money)+*(p_atm->remained_money);
-    p_atm->reset_slot_money();
     transfer(target_account, amount);
+    p_atm->reset_slot_money();
     return true;
+}
+
+void ATMInterface::append_history(History* new_history){
+    history_list.push_back(new_history);
+}
+
+ void ATMInterface::print_by_session(Session* session) {
+    string session_id = session->getSessionID();
+    bool found = false;
+    cout << "print by session"<<endl;
+    // Iterate over the history list
+    for (const auto& history : history_list) {
+        // Assuming History has a `getHistory` method that gives us a HistoryData object
+        HistoryData data = history->getHistory();
+
+        // Compare session_id
+        if (data.session_id == session_id) {
+            found = true;
+            history->printHistory();
+            std::cout << "------------------------------------" << std::endl;
+        }
+    }
+
+    if (!found) {
+        std::cout << "No transactions found for session ID: " << session_id << std::endl;
+    }
 }

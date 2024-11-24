@@ -12,15 +12,16 @@
 
 class ATMInterface {
 private:
-    ATM* p_atm;
+    
     History* p_history;
     Card* p_card;
     MoneyDict* money_slot= new MoneyDict();
     vector<Bank*> bank_list;
-    
+    vector<History*> history_list;
     vector<Account*> user_account_list;
     vector<Card*> user_card_list;
 public:
+    ATM* p_atm;
     bool is_inserted=false;
     bool p_is_admin;
     ATMInterface();
@@ -53,6 +54,8 @@ public:
     bool account_to_account();
     bool slot_to_account();
     Account* check_account_num();
+    void append_history(History* new_history);
+    void print_by_session(Session* session);
     
 };
 
