@@ -24,7 +24,7 @@ ATMInterface::ATMInterface() {
 }
 
 ATM* ATMInterface::createATM(){
-    Bank* choiced_bank = choiceBank();
+    Bank* choiced_bank = choiceBank(false, nullptr);
     bool is_single;
     bool is_unilingual;
     cout << "Single ATM: (1: single, 0: multi)" << endl;
@@ -57,7 +57,13 @@ void ATMInterface::insertCard() {
         }
         
     }else{
-        Bank* choiced_bank = choiceBank();
+        Bank* choiced_bank =nullptr;
+        if(p_atm->is_single_bank_atm){
+            choiced_bank = p_atm->primery_bank;
+        }else{
+
+        }
+        choiced_bank = choiceBank(p_atm->is_single_bank_atm, p_atm->primery_bank);
         int retry_count =0;
         cout << "card num: ";
         cin >>card_num;
@@ -88,7 +94,7 @@ void ATMInterface::insertCard() {
 
 Account* ATMInterface:: createAccount(){
     Bank* choice_bank;
-    choice_bank = choiceBank();
+    choice_bank = choiceBank(p_atm->is_single_bank_atm, p_atm->primery_bank);
     Account* p_account = new Account(choice_bank);
     append_user_account(p_account);
     return p_account;
@@ -211,16 +217,23 @@ void ATMInterface::checkFeeDetails() {
     cout << "Service fee: $2.50.\n";
 }
 
-Bank* ATMInterface::choiceBank(){
-    int choice;
-    cout << "choice in the bank list banks:\n";
-    for (size_t i = 0; i < bank_list.size(); ++i) {
-        cout << i + 1 << ". " << bank_list[i]->getBankName() << "\n";
+Bank* ATMInterface::choiceBank(bool is_single, Bank* bank){
+
+    if(is_single && bank != nullptr){
+        cout << "this atm is single atm you can choice only "<<bank->getBankName()<<endl;
+        return bank;
+    }else{
+        int choice;
+        cout << "choice in the bank list banks:\n";
+        for (size_t i = 0; i < bank_list.size(); ++i) {
+            cout << i + 1 << ". " << bank_list[i]->getBankName() << "\n";
+        }
+        
+        cin >> choice;
+        
+        return bank_list[choice-1];
     }
     
-    cin >> choice;
-    
-    return bank_list[choice-1];
 }
 
 Card* ATMInterface::choiceCard(){
@@ -352,7 +365,7 @@ int ATMInterface::withdraw(){
 Account* ATMInterface::check_account_num(){
     string account_num;
     Account* account = nullptr;
-    Bank* bank = choiceBank();
+    Bank* bank = choiceBank(p_atm->is_single_bank_atm, p_atm->primery_bank);
     int retry_count =0;
     cout << "account num: ";
     cin >>account_num;

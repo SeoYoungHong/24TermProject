@@ -43,7 +43,7 @@ public:
     void append_user_card(Card* card);
     void append_user_account(Account* account);
     void update_card(Card* card);
-    Bank* choiceBank();
+    Bank* choiceBank(bool is_single, Bank* bank);
     Card* choiceCard();
     Account* choiceAccount();
     Account* createAccount();
