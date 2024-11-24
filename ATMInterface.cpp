@@ -158,7 +158,17 @@ void ATMInterface::transfer(Account* target_account, int amount) {
 }
 
 void ATMInterface::changeLanguage() {
-    cout << "Language changed successfully.\n";
+    if(p_atm->is_unilingual_atm){
+        cout << "can not change lanuage"<<endl;
+    }else{
+        if(p_atm->language_state ==1){
+            p_atm->language_state=0;
+            cout << "Language changed successfully.\n";
+        }else{
+            p_atm->language_state=1;
+            cout << "언어가 한글로 변경되었습니다.\n";
+        }
+    }
 }
 
 // void ATMInterface::performTransaction(int option) {

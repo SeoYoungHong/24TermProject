@@ -41,6 +41,9 @@ int main() {
             case '4':
                 delete atm_interface;  // 메모리 해제
                 return 0;
+            case 'l':
+                atm_interface->changeLanguage();
+                break;
             default:
                 cout << "Invalid choice. Please try again.\n";
         }    
@@ -68,8 +71,11 @@ int tranjection_select_page(ATMInterface* atm_interface){
         case '3':
             tranjection_transfer_page(atm_interface);
             break;
-        case '4':
-            return 0;
+        case 'q':
+            break;
+        case 'l':
+            atm_interface->changeLanguage();
+            break;
         default:
             cout << "Invalid choice. Please try again.\n";
     }
@@ -102,6 +108,9 @@ int tranjection_deposit_money_page(ATMInterface* atm_interface){
                 return 0;
             case 'q':
                 return 0;
+            case 'l':
+                atm_interface->changeLanguage();
+                break;
             default:
                 cout << "Invalid choice. Please try again.\n";
         }
@@ -136,6 +145,9 @@ int tranjection_transfer_page(ATMInterface* atm_interface){
             return 0;
         case 'q':
             return 0;
+        case 'l':
+            atm_interface->changeLanguage();
+            break;
         default:
             cout << "Invalid choice. Please try again.\n";
     }
@@ -154,6 +166,9 @@ int go_and_stop_page(ATMInterface* atm_interface){
             break;
         case '2':
             print_page(atm_interface);
+            break;
+        case 'l':
+            atm_interface->changeLanguage();
             break;
         default:
             cout << "Invalid choice. Please try again.\n";
@@ -174,12 +189,11 @@ int print_page(ATMInterface* atm_interface){
     switch (choice) {
         case '1':
             break;
-        case '2':
+        case 'q':
             break;
-        case '3':
+        case 'l':
+            atm_interface->changeLanguage();
             break;
-        case '4':
-            return 0;
         default:
             cout << "Invalid choice. Please try again.\n";
     }
@@ -199,10 +213,11 @@ int admin_page(ATMInterface* atm_interface){
         case '2':
             atm_interface->export_by_atm();
             break;
-        case '3':
+        case 'q':
             break;
-        case '4':
-            return 0;
+        case 'l':
+            atm_interface->changeLanguage();
+            break;
         default:
             cout << "Invalid choice. Please try again.\n";
     }
