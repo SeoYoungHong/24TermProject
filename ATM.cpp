@@ -66,5 +66,7 @@ void ATM::update_session(Session* new_session) {
 
 void ATM::reset_slot_money(){
     delete slot_money;
+    delete input_fee;
+    input_fee = new MoneyDict();
     slot_money = new MoneyDict(); 
 }

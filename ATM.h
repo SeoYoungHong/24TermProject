@@ -23,7 +23,7 @@ public:
     MoneyDict* slot_money = new MoneyDict();
     const int cash_maximum = 50;
     const int check_maximum = 30;
-    int input_fee = 0;
+    MoneyDict* input_fee = new MoneyDict();
     const int withdraw_amount_max = 50000;
     Session* present_session = nullptr;
     
@@ -38,7 +38,6 @@ public:
     void update_slot_money(MoneyDict* input_money);
     void update_remained_money(MoneyDict* input_money);
     void update_session(Session* new_session);
-    void update_input_fee(int update_input_fee);
 };
 
 #endif // ATM_H

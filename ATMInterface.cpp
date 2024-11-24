@@ -291,9 +291,8 @@ Card* ATMInterface::matchcard(Bank* bank, string card_numm, string pw){
     return bank->find_card(card_numm, pw);
 }
 
-void ATMInterface::insert_cach() {
+void ATMInterface::insert_cach(MoneyDict* moneydict) {
     int count_1000 = 0, count_5000 = 0, count_10000 = 0, count_50000 = 0;
-    MoneyDict* test = new MoneyDict();
     cout << "Insert 1000 won bills: ";
     cin >> count_1000;
     cout << "Insert 5000 won bills: ";
@@ -306,11 +305,13 @@ void ATMInterface::insert_cach() {
         cout << "Error: Bill counts cannot be negative." << endl;
         return;
     }
-    p_atm->slot_money->addCash(1000, count_1000);
-    p_atm->slot_money->addCash(5000, count_5000);
-    p_atm->slot_money->addCash(10000, count_10000);
-    p_atm->slot_money->addCash(50000, count_50000);
+    moneydict->addCash(1000, count_1000);
+    moneydict->addCash(5000, count_5000);
+    moneydict->addCash(10000, count_10000);
+    moneydict->addCash(50000, count_50000);
 }
+
+
 
 void ATMInterface::insert_check(){
     while (true){
@@ -327,28 +328,38 @@ void ATMInterface::insert_check(){
 }
 
 void ATMInterface::atm_to_account(){
-    int solot_amount =  p_atm ->slot_money->getTotalAmount();
-    int account_amount = p_card->getAccount()->get_amount();
-    cout<<"solot amount: "<<solot_amount<< "account amount: " <<account_amount<<endl;
-    p_card->getAccount()->update_amount(solot_amount+account_amount);
-    *p_atm->remained_money = *(p_atm->slot_money)+*(p_atm->remained_money);
-    p_atm->reset_slot_money(); 
-    History* new_history = new History("deposit",solot_amount, p_card->getAccount(), p_atm->present_session,
-    "입금후 잔액",  p_atm);
-    new_history->printHistory();
-    append_history(new_history);
+    int fee=(p_atm->primery_bank == p_card->getAccount()->get_bank()?1000:2000);
+    cout<<"insert fee: "<<fee<<endl;
+    insert_cach(p_atm->input_fee);
+    if(p_atm->input_fee->getTotalAmount()==fee){
+        int solot_amount =  p_atm ->slot_money->getTotalAmount();
+        int account_amount = p_card->getAccount()->get_amount();
+        cout<<"solot amount: "<<solot_amount<< "account amount: " <<account_amount<<endl;
+        p_card->getAccount()->update_amount(solot_amount+account_amount);
+        *p_atm->remained_money = *(p_atm->slot_money)+*(p_atm->remained_money)+(*p_atm->input_fee);
+        p_atm->reset_slot_money(); 
+        History* new_history = new History("deposit",solot_amount, p_card->getAccount(), p_atm->present_session,
+        "입금후 잔액",  p_atm);
+        new_history->printHistory();
+        append_history(new_history);
+    }else{
+        cout << "fee err"<<endl;
+    }
+    
 }
 
 int ATMInterface::withdraw(){
+    int fee=(p_atm->primery_bank == p_card->getAccount()->get_bank()?1000:2000);
     Account* p_account = p_card->getAccount();
     int get_amount;
-    cout <<"your account amount: "<<p_account->get_amount()<<endl;
+    cout <<"your account amount: "<<p_account->get_amount() << "fee is: "<<fee<<endl;
     cout << "how much do you get the amount?";
     cin>>get_amount;
-    if(get_amount>p_account->get_amount()){
+    if(get_amount+fee>p_account->get_amount()){
         cout<<get_amount<<"don't have that much money."<<endl;
         cout<<"you have only"<<p_account->get_amount()<<endl;
     }else if(p_atm->remained_money->canPay(get_amount)){
+        p_account->update_amount(p_account->get_amount()-get_amount-fee);
         MoneyDict paid_money = p_atm->remained_money->pay(get_amount);
         cout<<"money paid: "<<get_amount<<endl;
         paid_money.printCashes();
@@ -377,6 +388,7 @@ Account* ATMInterface::check_account_num(){
 }
 
 bool ATMInterface::account_to_account(){
+    
     Account* target_account = check_account_num();
     int amount;
     if(target_account==nullptr){
@@ -385,9 +397,21 @@ bool ATMInterface::account_to_account(){
     cout << "how much to transfer?"<<endl;
     cin>>amount;
     Account* p_account = p_card->getAccount();
-    if(amount>p_account->get_amount()){
+    Bank* primery_bank = p_atm->primery_bank;
+    Bank* target_bank = target_account->get_bank();
+    Bank* card_bank = p_card->getAccount()->get_bank();
+    int fee =0;
+    if(primery_bank==target_bank && primery_bank==card_bank){
+        fee = 2000;
+    }else if(primery_bank!=target_bank && primery_bank!=card_bank){
+        fee = 4000;
+    }else{
+        fee =3000;
+    }
+    if(amount+fee>p_account->get_amount()){
         return false;
     }else{
+        p_account -> update_amount(p_account->get_amount()-amount-fee);
         transfer(target_account, amount);
         return true;
     }
@@ -395,17 +419,24 @@ bool ATMInterface::account_to_account(){
 }
 
 bool ATMInterface::slot_to_account(){
-    insert_cach();
+    insert_cach(p_atm->slot_money);
     insert_check();
-    Account* target_account = check_account_num();
-    int amount = p_atm->slot_money->getTotalAmount();
-    if(target_account==nullptr){
-        return false;
+    int fee = 1000;
+    cout<<"insert fee: "<<fee<<endl;
+    insert_cach(p_atm->input_fee);
+    if(p_atm->input_fee->getTotalAmount()==fee){
+        Account* target_account = check_account_num();
+        int amount = p_atm->slot_money->getTotalAmount();
+        if(target_account==nullptr){
+            return false;
+        }
+        *p_atm->remained_money = *(p_atm->slot_money)+*(p_atm->remained_money)+*(p_atm->input_fee);
+        transfer(target_account, amount);
+        p_atm->reset_slot_money();
+        return true;
+    }else{
+        cout <<"fee err"<<endl;
     }
-    *p_atm->remained_money = *(p_atm->slot_money)+*(p_atm->remained_money);
-    transfer(target_account, amount);
-    p_atm->reset_slot_money();
-    return true;
 }
 
 void ATMInterface::append_history(History* new_history){

@@ -30,6 +30,7 @@ public:
     string get_account_number();
     void append_user_card(Card* card);
     int get_amount();
+    Bank* get_bank();
 };
 
 #endif // ACCOUNT_H

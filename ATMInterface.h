@@ -48,7 +48,7 @@ public:
     Account* choiceAccount();
     Account* createAccount();
     Card* matchcard(Bank* bank, string card_numm, string pw);
-    void insert_cach();
+    void insert_cach(MoneyDict* moneydict);
     void insert_check();
     void atm_to_account();
     int withdraw();

@@ -98,7 +98,7 @@ int tranjection_deposit_money_page(ATMInterface* atm_interface){
         cin >> choice;
         switch (choice) {
             case '1':
-                atm_interface->insert_cach();
+                atm_interface->insert_cach(atm_interface->p_atm->slot_money);
                 break;
             case '2':
                 atm_interface->insert_check();

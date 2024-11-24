@@ -49,3 +49,7 @@ void Account::append_user_card(Card* card){
     p_bank->append_user_card(card);
     user_card_list.push_back(card);
 }
+
+Bank* Account::get_bank(){
+    return p_bank;
+}
