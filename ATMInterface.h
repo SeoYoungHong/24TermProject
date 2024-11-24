@@ -20,6 +20,7 @@ private:
     vector<History*> history_list;
     vector<Account*> user_account_list;
     vector<Card*> user_card_list;
+    
 public:
     ATM* p_atm;
     bool is_inserted=false;

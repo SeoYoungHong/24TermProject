@@ -6,21 +6,14 @@
 
 using namespace std;
 
-// 12자리 계좌 번호를 생성하는 함수 정의
-string generatesessionNumber() {
-    random_device rd;           // 시드 값 생성
-    mt19937 gen(rd());          // Mersenne Twister 난수 엔진
-    uniform_int_distribution<> dist(0, 9); // 0부터 9까지 균등 분포
-
-    string account_number;
-    for (int i = 0; i < 6; ++i) {
-        account_number += to_string(dist(gen));
-    }
-    return account_number;
-}
+int Session::session_counter = 1;
 
 Session::Session()
-    : session_id(generatesessionNumber()), withdraw_count(0) {
+    :withdraw_count(0) {
+        string serial_num = to_string(session_counter);
+        serial_num = string(6 - serial_num.length(), '0') + serial_num;
+        session_id = serial_num;
+        session_counter++;
         cout << "new session created sessionnum: "<<session_id<<endl;
     }
 

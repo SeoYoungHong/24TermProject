@@ -8,22 +8,16 @@
 
 using namespace std;
 class Card;
-// 12자리 계좌 번호를 생성하는 함수 정의
-string generateAccountNumber() {
-    random_device rd;           // 시드 값 생성
-    mt19937 gen(rd());          // Mersenne Twister 난수 엔진
-    uniform_int_distribution<> dist(0, 9); // 0부터 9까지 균등 분포
+int Account::account_counter = 1;
 
-    string account_number;
-    for (int i = 0; i < 12; ++i) {
-        account_number += to_string(dist(gen));
-    }
-    return account_number;
-}
 
 // 생성자 정의
 Account::Account(Bank* bank)
-    : p_account_number(generateAccountNumber()), p_bank(bank), amount(0) {
+    : p_bank(bank), amount(0) {
+    string serial_num = to_string(account_counter);
+    serial_num = string(12 - serial_num.length(), '0') + serial_num;  // 12자리로 맞추기
+    account_counter++;
+    p_account_number =serial_num;
     bank->append_user_account(this);
     amount=0;
     cout << "[Construct] create account, account_number: " << p_account_number << endl;

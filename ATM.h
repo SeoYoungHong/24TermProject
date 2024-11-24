@@ -11,6 +11,8 @@ using namespace std;
 
 
 class ATM {
+private:
+    static int serial_counter;
 public:
     Bank* primery_bank;
     string serial_number;
@@ -24,7 +26,7 @@ public:
     int input_fee = 0;
     const int withdraw_amount_max = 50000;
     Session* present_session = nullptr;
-
+    
     // 생성자 (public)
     ATM(Bank* bank, bool is_single, bool is_unilingual);
 

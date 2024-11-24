@@ -55,9 +55,8 @@ void ATMInterface::insertCard() {
                 cout <<"pw fail retry"<<retry_count<<"/3"<<endl;
                 continue;
             }else{
-                p_card = card;
-                Session* new_session = new Session();
-                p_atm->update_session(new_session);
+                update_card(card);
+                
                 is_inserted = true;
                 p_is_admin =  card->p_is_admin;
                 cout <<"card insert and session start"<<endl;

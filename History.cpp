@@ -9,24 +9,18 @@ using namespace std;
 
 using namespace std;
 
-// 12자리 계좌 번호를 생성하는 함수 정의
-string generateTransId() {
-    random_device rd;           // 시드 값 생성
-    mt19937 gen(rd());          // Mersenne Twister 난수 엔진
-    uniform_int_distribution<> dist(0, 9); // 0부터 9까지 균등 분포
+int History::history_counter = 1;
 
-    string account_number;
-    for (int i = 0; i < 6; ++i) {
-        account_number += to_string(dist(gen));
-    }
-    return account_number;
-}
 
 // 생성자 구현
 History::History(string trans_type, int amt,
     Account* acc, Session* sess, const string info, ATM* atm)
-    : transaction_id(generateTransId()), transaction_type(trans_type), amount(amt),
+    :transaction_type(trans_type), amount(amt),
     additional_information(info) {
+        string serial_num = to_string(history_counter);
+        serial_num = string(6 - serial_num.length(), '0') + serial_num;  // 12자리로 맞추기
+        history_counter++; 
+        transaction_id = serial_num;
         session_id = sess->getSessionID();
         account_num = acc->get_account_number();
         int remain_money = acc->get_amount();

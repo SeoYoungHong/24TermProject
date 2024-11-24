@@ -21,6 +21,7 @@ struct HistoryData {
 
 class History {
 private:
+    static int history_counter;
     std::string transaction_id;           
     std::string transaction_type;         
     int amount;                          

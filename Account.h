@@ -12,6 +12,7 @@ using namespace std;
 
 class Account {
 private:
+    static int account_counter;
     string p_account_number;
     Bank* p_bank;
     vector<Card*> user_card_list;

@@ -6,6 +6,7 @@
 
 class Session {
 private:
+    static int session_counter;
     std::string session_id;                     // 세션의 고유 ID
     int withdraw_count;                         // 현재 세션에서의 출금 횟수
     const int withdraw_count_threshold = 3;     // 출금 횟수 한도
