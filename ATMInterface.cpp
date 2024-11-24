@@ -11,6 +11,9 @@ using namespace std;
 // Constructor implementation
 ATMInterface::ATMInterface() {
     // List of bank names
+    if(p_atm->language_state){
+
+    }
     cout << "choice bank name"<<endl;
     vector<string> bank_name_list = {"농협", "수협", "국민은행", "우리은행", "하나은행"};
 

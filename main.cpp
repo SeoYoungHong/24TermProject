@@ -20,8 +20,14 @@ int main() {
     cout << "ATM System Initializing...\n";
 
     while (true) {
-        cout << "1. Card/Account Setup || 2. Insert Card || q. Exit || l. change language "<<endl;
-        cout << "Enter your choice: ";
+        if(atm_interface->p_atm->language_state){
+            cout << "1. 카드/ 계좌 설정 || 2. 카드삽입 || q. Exit || l. change language "<<endl;
+            cout << "한글: ";
+        }else{
+            cout << "1. Card/Account Setup || 2. Insert Card || q. Exit || l. change language "<<endl;
+            cout << "Enter your choice: ";
+        }
+        
         cin >> choice;
         switch (choice) {
             case '1':
