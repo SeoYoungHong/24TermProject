@@ -39,34 +39,51 @@ void ATMInterface::insertCard() {
     string card_num;
     string card_pw;
     Card* card = nullptr;
-    Bank* choiced_bank = choiceBank();
-    int retry_count =0;
-    cout << "card num: ";
-    cin >>card_num;
-    card = choiced_bank->find_card_by_number(card_num);
-    if(card==nullptr){
-        cout << "card num: "<<card_num<<"not exist"<<endl;
-    }else{
-        while(retry_count<3){
+    bool is_admin=false;
+    p_is_admin=false;
+    is_inserted=false;
+    cout << "is admin? (1: yes, 0: no)";
+    cin >>is_admin;
+    if(is_admin){
+        cout << "card num: ";
+        cin >>card_num;
+        cout << "card pw: ";
+        cin >>card_pw;
+        if(card_num=="0" && card_pw=="0"){
+            p_is_admin=true;
+            is_inserted=true;
+        }else{
+            cout<<"fail to admin login"<<endl;
+        }
         
-            cout << "card pw: ";
-            cin >>card_pw;
-            if(card->p_password!=card_pw){
-                retry_count++;
-                cout <<"pw fail retry"<<retry_count<<"/3"<<endl;
-                continue;
-            }else{
-                update_card(card);
-                
-                is_inserted = true;
-                p_is_admin =  card->p_is_admin;
-                cout <<"card insert and session start"<<endl;
-                break;
+    }else{
+        Bank* choiced_bank = choiceBank();
+        int retry_count =0;
+        cout << "card num: ";
+        cin >>card_num;
+        card = choiced_bank->find_card_by_number(card_num);
+        if(card==nullptr){
+            cout << "card num: "<<card_num<<"not exist"<<endl;
+        }else{
+            while(retry_count<3){
+            
+                cout << "card pw: ";
+                cin >>card_pw;
+                if(card->p_password!=card_pw){
+                    retry_count++;
+                    cout <<"pw fail retry"<<retry_count<<"/3"<<endl;
+                    continue;
+                }else{
+                    update_card(card);
+                    
+                    is_inserted = true;
+                    p_is_admin =  card->p_is_admin;
+                    cout <<"card insert and session start"<<endl;
+                    break;
+                }
             }
         }
     }
-    
-    
 }
 
 Account* ATMInterface:: createAccount(){
@@ -397,7 +414,7 @@ void ATMInterface::print_by_session(Session* session) {
 void ATMInterface::print_by_atm() {
     string serial_num = p_atm->serial_number;
     bool found = false;
-    cout << "print by session"<<endl;
+    cout << "print by atm"<<endl;
     // Iterate over the history list
     for (const auto& history : history_list) {
         // Assuming History has a `getHistory` method that gives us a HistoryData object

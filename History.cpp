@@ -41,6 +41,7 @@ HistoryData History::getHistory() const {
     data.account_num = account_num;
     data.session_id = session_id;
     data.additional_information = additional_information;
+    data.atm_serial_num = atm_serial_num;
     return data;
 }
 

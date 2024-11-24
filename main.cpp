@@ -31,7 +31,7 @@ int main() {
                 atm_interface->insertCard();
                 if(atm_interface->is_inserted){
                     if(atm_interface->p_is_admin){
-                    admin_page(atm_interface);
+                        admin_page(atm_interface);
                     }else{
                         tranjection_select_page(atm_interface);
                     }
