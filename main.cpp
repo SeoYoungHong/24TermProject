@@ -175,7 +175,6 @@ int print_page(ATMInterface* atm_interface){
         case '1':
             break;
         case '2':
-
             break;
         case '3':
             break;
@@ -189,14 +188,16 @@ int print_page(ATMInterface* atm_interface){
 
 int admin_page(ATMInterface* atm_interface){
     char choice;
-    cout << "1. show all of the tranjections || q. Exit || l. change language "<<endl;
+    cout << "1. show all of the tranjections || 2. export tranjections || q. Exit || l. change language "<<endl;
     cout << "Enter your choice: ";
     cin >> choice;
 
     switch (choice) {
         case '1':
+            atm_interface->print_by_atm();
             break;
         case '2':
+            atm_interface->export_by_atm();
             break;
         case '3':
             break;

@@ -57,7 +57,8 @@ public:
     Account* check_account_num();
     void append_history(History* new_history);
     void print_by_session(Session* session);
-    
+    void print_by_atm();
+    void export_by_atm();
 };
 
 #endif 

@@ -54,6 +54,15 @@ void History::printHistory() {
     std::cout << "Additional Information: " << data.additional_information << std::endl;
 }
 
+void History::printHistoryToFile(std::ofstream& outFile) {
+    outFile << "Transaction ID: " << transaction_id << std::endl;
+    outFile << "Transaction Type: " << transaction_type << std::endl;
+    outFile << "Amount: " << amount << std::endl;
+    outFile << "Account Number: " << account_num << std::endl;
+    outFile << "Session ID: " << session_id << std::endl;
+    outFile << "Additional Information: " << additional_information << std::endl;
+}
+
 // 수정자 메서드 구현
 void History::setTransactionType(const string& type) {
     transaction_type = type;

@@ -2,6 +2,8 @@
 #define HISTORY_H
 
 #include <string>
+#include <fstream>
+#include <iostream>
 #include "Account.h"
 #include "ATM.h" 
 
@@ -43,6 +45,7 @@ public:
     void setAmount(int amt);
     void setAdditionalInformation(const std::string& info);
     void printHistory();
+    void printHistoryToFile(std::ofstream& outFile) ;
 };
 
-#endif // HISTORY_H
+#endif 

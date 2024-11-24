@@ -5,6 +5,7 @@
 #include "ATM.h"
 #include "Session.h"
 #include "History.h"
+#include <fstream>
 using namespace std;
 
 // Constructor implementation
@@ -371,7 +372,7 @@ void ATMInterface::append_history(History* new_history){
     history_list.push_back(new_history);
 }
 
- void ATMInterface::print_by_session(Session* session) {
+void ATMInterface::print_by_session(Session* session) {
     string session_id = session->getSessionID();
     bool found = false;
     cout << "print by session"<<endl;
@@ -391,4 +392,63 @@ void ATMInterface::append_history(History* new_history){
     if (!found) {
         std::cout << "No transactions found for session ID: " << session_id << std::endl;
     }
+}
+
+void ATMInterface::print_by_atm() {
+    string serial_num = p_atm->serial_number;
+    bool found = false;
+    cout << "print by session"<<endl;
+    // Iterate over the history list
+    for (const auto& history : history_list) {
+        // Assuming History has a `getHistory` method that gives us a HistoryData object
+        HistoryData data = history->getHistory();
+
+        // Compare session_id
+        if (data.atm_serial_num == serial_num) {
+            found = true;
+            history->printHistory();
+            std::cout << "------------------------------------" << std::endl;
+        }
+    }
+
+    if (!found) {
+        std::cout << "No transactions found for atm serial number: " << serial_num << std::endl;
+    }
+}
+
+void ATMInterface::export_by_atm() {
+    string serial_num = p_atm->serial_number;
+    bool found = false;
+    
+    // 파일 출력 스트림 객체 생성
+    std::ofstream outFile("transaction_by_atm.txt");
+
+    if (!outFile) {
+        std::cerr << "Error opening file for writing." << std::endl;
+        return;
+    }
+
+    outFile << "Transactions for ATM serial number: " << serial_num << std::endl;
+    outFile << "======================================" << std::endl;
+
+    // Iterate over the history list
+    for (const auto& history : history_list) {
+        // Assuming History has a `getHistory` method that gives us a HistoryData object
+        HistoryData data = history->getHistory();
+
+        // Compare session_id (atm_serial_num) with the given ATM serial number
+        if (data.atm_serial_num == serial_num) {
+            found = true;
+            // Write the history to file (assuming `printHistory` writes to console, we'll call the logic)
+            history->printHistoryToFile(outFile);  // Adjust the method to print to file
+            outFile << "------------------------------------" << std::endl;
+        }
+    }
+
+    if (!found) {
+        outFile << "No transactions found for ATM serial number: " << serial_num << std::endl;
+    }
+
+    // Close the file after writing
+    outFile.close();
 }
