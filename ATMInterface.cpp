@@ -6,159 +6,376 @@
 #include "Session.h"
 #include "History.h"
 #include <fstream>
+#include <algorithm> // std::find¸¦ »ç¿ëÇÏ±â À§ÇÑ Çì´õ ÆÄÀÏ
 using namespace std;
+
+extern std::vector<std::string> global_card_numbers;
+extern void mainMenuHandler(ATMInterface* atm_interface);
 
 // Constructor implementation
 ATMInterface::ATMInterface() {
     // List of bank names
-    if(p_atm->language_state){
 
-    }
-    cout << "choice bank name"<<endl;
-    vector<string> bank_name_list = {"ë†í˜‘", "ìˆ˜í˜‘", "êµ­ë¯¼ì€í–‰", "ìš°ë¦¬ì€í–‰", "í•˜ë‚˜ì€í–‰"};
-
-    // Dynamically create Bank objects and store them in bank_list
-    for (const auto& bank_name : bank_name_list) {
-        bank_list.push_back(new Bank(bank_name));
-    }
-    p_atm = createATM();
-
-    cout << "[Construct] ATM interface\n";
+    p_atm=nullptr;
 }
 
 ATM* ATMInterface::createATM(){
     Bank* choiced_bank = choiceBank(false, nullptr);
     bool is_single;
     bool is_unilingual;
-    cout << "Single ATM: (1: single, 0: multi)" << endl;
+    cout << "´ÜÀÏ ATMÀ¸·Î ¸¸µå½Ã°Ú½À´Ï±î? : (1: ´ÜÀÏ ÀºÇà ATM, 0: ´ÙÁß ÀºÇà ATM) "<< endl;
     cin >> is_single;
-    cout << "Unilingual: (1: uni, 0: bi)" << endl;
+    cout << "´ÜÀÏ ¾ğ¾î·Î ¼³Á¤ÇÏ½Ã°Ú½À´Ï±î? : (1: ´ÜÀÏ(ENG), 0: ÀÌÁß(KOR & ENG))"<< endl;
     cin >> is_unilingual;
-    p_atm = new ATM(choiced_bank, is_single, is_unilingual);
-    return p_atm;
+    ATM* atm = new ATM(choiced_bank, is_single, is_unilingual);
+    return atm;
 }
 
 void ATMInterface::insertCard() {
     string card_num;
     string card_pw;
     Card* card = nullptr;
-    bool is_admin=false;
-    p_is_admin=false;
-    is_inserted=false;
-    cout << "is admin? (1: yes, 0: no)";
-    cin >>is_admin;
-    if(is_admin){
-        cout << "card num: ";
-        cin >>card_num;
-        cout << "card pw: ";
-        cin >>card_pw;
-        if(card_num=="0" && card_pw=="0"){
-            p_is_admin=true;
-            is_inserted=true;
-        }else{
-            cout<<"fail to admin login"<<endl;
-        }
-        
-    }else{
-        Bank* choiced_bank =nullptr;
-        if(p_atm->is_single_bank_atm){
-            choiced_bank = p_atm->primery_bank;
-        }else{
+    int retry_count = 0;
 
+    // ÃÊ±âÈ­
+    p_is_admin = false;
+    is_inserted = false;
+
+    // °ü¸®ÀÚ ¿©ºÎ È®ÀÎ
+    bool is_admin;
+    int temp_admin; // ÀÓ½Ã º¯¼ö·Î ÀÔ·Â¹ŞÀ½
+    while (true) {
+        if (p_atm->language_state) {
+            cout << "°ü¸®ÀÚÀÔ´Ï±î? (1: ³×, 0: ¾Æ´Ï¿À): ";
+        } else {
+            cout << "Is admin? (1: yes, 0: no): ";
         }
-        choiced_bank = choiceBank(p_atm->is_single_bank_atm, p_atm->primery_bank);
-        int retry_count =0;
-        cout << "card num: ";
-        cin >>card_num;
-        card = choiced_bank->find_card_by_number(card_num);
-        if(card==nullptr){
-            cout << "card num: "<<card_num<<"not exist"<<endl;
-        }else{
-            while(retry_count<3){
-            
-                cout << "card pw: ";
-                cin >>card_pw;
-                if(card->p_password!=card_pw){
-                    retry_count++;
-                    cout <<"pw fail retry"<<retry_count<<"/3"<<endl;
-                    continue;
-                }else{
-                    update_card(card);
-                    
-                    is_inserted = true;
-                    p_is_admin =  card->p_is_admin;
-                    cout <<"card insert and session start"<<endl;
-                    break;
-                }
+        cin >> temp_admin;
+
+        // ÀÔ·Â °ª °ËÁõ
+        if (temp_admin == 0 || temp_admin == 1) {
+            is_admin = temp_admin; // 0 ¶Ç´Â 1À» bool °ªÀ¸·Î º¯È¯
+            break; // À¯È¿ÇÑ °ªÀÌ¹Ç·Î ¹İº¹ Á¾·á
+        } else {
+            if (p_atm->language_state) {
+                cout << "Àß¸øµÈ ÀÔ·ÂÀÔ´Ï´Ù. 0 ¶Ç´Â 1À» ÀÔ·ÂÇÏ¼¼¿ä.\n";
+            } else {
+                cout << "Invalid input. Please enter 0 or 1.\n";
             }
         }
     }
+
+    // °ü¸®ÀÚ ¸ğµå Ã³¸®
+    if (is_admin) {
+        if (p_atm->language_state) {
+            cout << "Ä«µå ¹øÈ£: ";
+        } else {
+            cout << "Card number: ";
+        }
+        cin >> card_num;
+
+        if (p_atm->language_state) {
+            cout << "Ä«µå ºñ¹Ğ¹øÈ£: ";
+        } else {
+            cout << "Card password: ";
+        }
+        cin >> card_pw;
+
+        // °ü¸®ÀÚ ÀÎÁõ
+        if (card_num == "0" && card_pw == "0") {
+            p_is_admin = true;
+            is_inserted = true;
+
+            if (p_atm->language_state) {
+                cout << "°ü¸®ÀÚ ¸ğµå·Î ·Î±×ÀÎµÇ¾ú½À´Ï´Ù.\n";
+            } else {
+                cout << "Logged in as admin.\n";
+            }
+        return;
+
+        } else {
+        if (p_atm->language_state) {
+            cout << "°ü¸®ÀÚ ·Î±×ÀÎ ½ÇÆĞ.\n";
+        } else {
+            cout << "Failed to login as admin.\n";
+        }
+        mainMenuHandler(this); // ¸ŞÀÎ ¸Ş´º·Î µ¹¾Æ°¡±â
+        return;
 }
+    }
+
+    // ÀÏ¹İ »ç¿ëÀÚ Ã³¸®
+    if (p_atm->language_state) {
+        cout << "Ä«µå ¹øÈ£: ";
+    } else {
+        cout << "Card number: ";
+    }
+    cin >> card_num;
+
+    // Ä«µå ¹øÈ£·Î Ä«µå ¹× ÀºÇà °Ë»ö
+    Bank* associated_bank = nullptr;
+for (auto& bank : getBankList()) {
+    card = bank->find_card_by_number(card_num);
+    if (card != nullptr) {
+        associated_bank = bank; // ÇØ´ç ÀºÇàÀ» ÀúÀå
+        break; // Ä«µå ¹ß°ß ½Ã Å½»ö Á¾·á
+    }
+}
+
+// Single ATM¿¡¼­ ´Ù¸¥ ÀºÇà Ä«µå°¡ »ğÀÔµÈ °æ¿ì Ã³¸®
+if (p_atm->is_single_bank_atm && associated_bank != nullptr && associated_bank != p_atm->primery_bank) {
+    if (p_atm->language_state) {
+        cout << "ÀÌ ATMÀº " << p_atm->primery_bank->getBankName() << " Ä«µå¸¸ Áö¿øÇÕ´Ï´Ù.\n";
+    } else {
+        cout << "This ATM only supports cards from " << p_atm->primery_bank->getBankName() << ".\n";
+    }
+    mainMenuHandler(this); // ¸ŞÀÎ ¸Ş´º·Î µ¹¾Æ°¡±â
+    return;
+}
+
+// Ä«µå°¡ ¾ø´Â °æ¿ì Ã³¸®
+if (card == nullptr) {
+    if (p_atm->language_state) {
+        cout << "Ä«µå ¹øÈ£ " << card_num << "ÀÌ(°¡) Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù.\n";
+    } else {
+        cout << "Card number " << card_num << " does not exist.\n";
+    }
+    mainMenuHandler(this); // ¸ŞÀÎ ¸Ş´º·Î µ¹¾Æ°¡±â
+    return;
+}
+
+// Single ATMÀÌ ¾Æ´Ï°Å³ª Ä«µå°¡ ÇØ´ç ÀºÇàÀÇ Ä«µåÀÎ °æ¿ì Ã³¸®
+if (associated_bank == nullptr || (!p_atm->is_single_bank_atm || associated_bank == p_atm->primery_bank)) {
+    // Ä«µå°¡ Á¤»óÀûÀ¸·Î »ğÀÔµÇ´Â °æ¿ì ÀÌÈÄ ·ÎÁ÷ ÁøÇà
+} else {
+    // ¿¹»óÄ¡ ¸øÇÑ °æ¿ì ±âº» ¸Ş½ÃÁö Ã³¸®
+    if (p_atm->language_state) {
+        cout << "Ä«µå¸¦ Ã³¸®ÇÒ ¼ö ¾ø½À´Ï´Ù.\n";
+    } else {
+        cout << "Unable to process the card.\n";
+    }
+    mainMenuHandler(this); // ¸ŞÀÎ ¸Ş´º·Î µ¹¾Æ°¡±â
+    return;
+}
+
+
+    // ºñ¹Ğ¹øÈ£ È®ÀÎ
+    while (retry_count < 3) {
+        if (p_atm->language_state) {
+            cout << "Ä«µå ºñ¹Ğ¹øÈ£: ";
+        } else {
+            cout << "Card password: ";
+        }
+        cin >> card_pw;
+
+        if (card->p_password != card_pw) {
+            retry_count++;
+            if (p_atm->language_state) {
+                cout << "ºñ¹Ğ¹øÈ£ ½ÇÆĞ. Àç½Ãµµ " << retry_count << "/3\n";
+            } else {
+                cout << "Password incorrect. Retry " << retry_count << "/3\n";
+            }
+        } else {
+            // ºñ¹Ğ¹øÈ£ ÀÏÄ¡ ½Ã Ä«µå ¾÷µ¥ÀÌÆ® ¹× ¼¼¼Ç ½ÃÀÛ
+            update_card(card);
+            is_inserted = true;
+            p_is_admin = card->p_is_admin;
+
+            if (p_atm->language_state) {
+                cout << "Ä«µå »ğÀÔ ¹× ¼¼¼Ç ½ÃÀÛ\n";
+            } else {
+                cout << "Card inserted and session started\n";
+            }
+            return;
+        }
+    }
+
+    // ºñ¹Ğ¹øÈ£ 3È¸ ½ÇÆĞ Ã³¸®
+    if (!is_inserted) {
+        if (p_atm->language_state) {
+            cout << "ºñ¹Ğ¹øÈ£ 3È¸ ½ÇÆĞ. ¼¼¼Ç Á¾·á.\n";
+        } else {
+            cout << "Password failed 3 times. Session aborted.\n";
+        }
+        mainMenuHandler(this); // ¸ŞÀÎ ¸Ş´º·Î µ¹¾Æ°¡±â
+        return;
+}
+}
+
 
 Account* ATMInterface:: createAccount(){
     Bank* choice_bank;
-    choice_bank = choiceBank(p_atm->is_single_bank_atm, p_atm->primery_bank);
-    Account* p_account = new Account(choice_bank);
+    string user_name;
+    choice_bank = choiceBank(false, nullptr); // ATMÀÇ is_single, primary_bank°ú °ü°è¾øÀÌ ¼±ÅÃ °¡´ÉÇÏµµ·Ï ¼öÁ¤ // º¯°æµÈ ºÎºĞ
+
+    // À¯Àú ÀÌ¸§ ÀÔ·Â
+    cout << "»ç¿ëÀÚ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä: ";
+        
+    cin.ignore(); // ÀÔ·Â ¹öÆÛ ÃÊ±âÈ­
+    getline(cin, user_name); // À¯Àú ÀÌ¸§ ÀÔ·Â
+
+    Account* p_account = new Account(choice_bank, user_name);
     append_user_account(p_account);
+    cout << "°èÁÂ°¡ ¼º°øÀûÀ¸·Î »ı¼ºµÇ¾ú½À´Ï´Ù: " << endl;
+
     return p_account;
 }
 
-Card* ATMInterface::createCard(){
-    // Constructor with user input
+
+// Card* ATMInterface::createCard(){
+//     // Constructor with user input
+//     if(atm_list.size()==0){
+//         return nullptr;
+//     }
+//     string account_number;
+//     string p_password;
+//     string p_card_number;
+//     bool card_is_admin = false;
+//     bool response=1;
+//     Account* p_account = nullptr;
+//     Bank* choice_bank = nullptr;
+//     if(user_account_list.size()==0){
+
+//         cout << "°èÁÂ°¡ ¾ø½À´Ï´Ù. °èÁÂ¸¦ ¸¸µé°Ú½À´Ï±î?(1:¿¹, 0:¾Æ´Ï¿À)"<<endl;
+
+//         cin >> response;
+//         if(response){
+//             p_account = createAccount();
+//         }else{
+ 
+//             cout<< "Ã¹ ÆäÀÌÁö·Î ÀÌµ¿ÇÕ´Ï´Ù"<<endl;
+
+//         }
+//     }else{
+//         cout << "°èÁÂ°¡ ÀÖ½À´Ï´Ù. °èÁÂ¸¦ ¸¸µé°Ú½À´Ï±î?(1:¿¹, 0:¾Æ´Ï¿À)"<<endl;
+        
+//         cin >> response;
+//         if(response){
+//             p_account = createAccount();
+//         }else{
+//             p_account = choiceAccount();
+//         }
+//     }
+//     cout << "Ä«µå ¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä: ";
+    
+//     cin >> p_card_number;
+//     choice_bank = p_account->get_bank();
+//     if(choice_bank->find_card_by_number(p_card_number)==nullptr){
+//         cout << "Ä«µå ºñ¹Ğ¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä: ";
+        
+//         cin >> p_password;
+//         Card* new_card = new Card(p_account, card_is_admin, p_card_number, p_password);
+//         cout << "Ä«µå Ãß°¡/¼¼ÆÃ¿¡ ¼º°øÇÏ¿´½À´Ï´Ù." << endl;
+
+//         return new_card;
+
+//     }else{
+//         cout <<"ÀÌ¹Ì Á¸ÀçÇÏ´Â Ä«µå ¹øÈ£ÀÔ´Ï´Ù."<<endl;
+//         nullptr;
+//     }
+    
+// }
+
+// ATMInterface.cpp
+Card* ATMInterface::createCard() {
+    if (bank_list.empty()) {
+        cout << "»ı¼ºµÈ ÀºÇàÀÌ ¾ø½À´Ï´Ù. ÀºÇàÀ» ¸ÕÀú Ãß°¡ÇÏ¼¼¿ä." << endl;
+        return nullptr; // º¯°æµÈ ºÎºĞ
+    }
     
     string account_number;
     string p_password;
     string p_card_number;
-    int choice;
     bool card_is_admin = false;
-    bool response;
+    bool response = 1;
     Account* p_account = nullptr;
     Bank* choice_bank = nullptr;
-    if(user_account_list.size()==0){
-        cout << "you don'y have any account. Have you make the account?(1:yes, 0:no)"<<endl;
-        cin >> response;
-        if(response){
-            p_account = createAccount();
-        }else{
-            cout<< "go to the first page";
-        }
-    }else{
-        cout << "you have account. Have you make the account?(1:yes, 0:no)"<<endl;
-        cin >> response;
-        if(response){
-            p_account = createAccount();
-        }else{
+    
+    // °èÁÂ ¼±ÅÃ ¶Ç´Â »ı¼º
+    if (user_account_list.empty()) {
+        cout << "»ı¼ºµÈ °èÁÂ°¡ ¾ø½À´Ï´Ù. °èÁÂ¸¦ »ı¼ºÇÕ´Ï´Ù." << endl; // º¯°æµÈ ºÎºĞ
+        p_account = createAccount();
+    } else {
+        cout << "°èÁÂ¸¦ ¼±ÅÃÇÏ°Å³ª »õ·Î »ı¼ºÇÏ¼¼¿ä (1: ¼±ÅÃ, 2: »õ·Î »ı¼º): ";
+        int choice;
+        cin >> choice;
+        if (choice == 1) {
             p_account = choiceAccount();
+        } else {
+            p_account = createAccount();
         }
     }
-    cout << "Enter card number: ";
-    cin >> p_card_number;
-    cout << "Enter card password: ";
-    cin >> p_password;
-    Card* new_card = new Card(p_account, card_is_admin, p_card_number, p_password);
 
-    return new_card;
+while (true) {
+    cout << "Ä«µå ¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä: ";
+    cin >> p_card_number;
+
+    // Áßº¹ Ä«µå ¹øÈ£ È®ÀÎ
+    if (std::find(global_card_numbers.begin(), global_card_numbers.end(), p_card_number) != global_card_numbers.end()) {
+        cout << "ÀÌ¹Ì Á¸ÀçÇÏ´Â Ä«µå ¹øÈ£ÀÔ´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇÏ¼¼¿ä." << endl;
+    } else {
+        break; // À¯È¿ÇÑ Ä«µå ¹øÈ£°¡ ÀÔ·ÂµÇ¸é ¹İº¹¹® Á¾·á
+    }
 }
 
+    choice_bank = p_account->get_bank();
+    if (choice_bank->find_card_by_number(p_card_number) == nullptr) {
+        cout << "Ä«µå ºñ¹Ğ¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä: ";
+        cin >> p_password;
+
+        // »õ Ä«µå »ı¼º ¹× ±Û·Î¹ú Ä«µå ¸®½ºÆ®¿¡ Ãß°¡
+        Card* new_card = new Card(p_account, card_is_admin, p_card_number, p_password);
+        global_card_numbers.push_back(p_card_number); // »õ Ä«µå ¹øÈ£ Ãß°¡
+        cout << "Ä«µå Ãß°¡/¼¼ÆÃ¿¡ ¼º°øÇÏ¿´½À´Ï´Ù." << endl;
+
+        return new_card;
+    } else {
+        cout << "ÀÌ¹Ì Á¸ÀçÇÏ´Â Ä«µå ¹øÈ£ÀÔ´Ï´Ù." << endl; // Áßº¹ ¸Ş½ÃÁö Ãâ·Â
+        return nullptr;
+    }
+}
+
+
 void ATMInterface::reset() {
-    cout << "ATM Reset Successful.\n";
+    if(p_atm->language_state){
+        cout << "ATMÀÌ ¼º°øÀûÀ¸·Î ¸®¼ÂµÇ¾ú½À´Ï´Ù.\n";
+    }else{
+        cout << "ATM Reset Successful.\n";
+    }
 }
 
 void ATMInterface::printBySession() {
-    cout << "Printing session history...\n";
+    if(p_atm->language_state){
+        cout << "¼¼¼Ç ±â·ÏÀ» Ãâ·ÂÇÕ´Ï´Ù...\n";
+    }else{
+        cout << "Printing session history...\n";
+    }
+
 }
 
 void ATMInterface::printByATM() {
-    cout << "Printing ATM transaction history...\n";
+    if(p_atm->language_state){
+        cout << "ATM °Å·¡ ³»¿ªÀ» Ãâ·ÂÇÕ´Ï´Ù...\n";
+    }else{
+        cout << "Printing ATM transaction history...\n";
+    }
 }
 
 void ATMInterface::insertMoney() {
-    cout << "Insert cash into the ATM...\n";
+    if(p_atm->language_state){
+        cout << "ATM¿¡ Çö±İÀ» ³ÖÀ¸¼¼¿ä...\n";
+    }else{
+        cout << "Insert cash into the ATM...\n";
+    }
     depositCash();
 }
 
 void ATMInterface::checkFee() {
-    cout << "Checking fee details...\n";
+    if(p_atm->language_state){
+        cout << "¼ö¼ö·á ¼¼ºÎ Á¤º¸¸¦ È®ÀÎÇÕ´Ï´Ù...\n";
+    }else{
+        cout << "Checking fee details...\n";
+    }
     checkFeeDetails();
 }
 
@@ -175,7 +392,7 @@ void ATMInterface::changeLanguage() {
             cout << "Language changed successfully.\n";
         }else{
             p_atm->language_state=1;
-            cout << "ì–¸ì–´ê°€ í•œê¸€ë¡œ ë³€ê²½ë˜ì—ˆìŠµë‹ˆë‹¤.\n";
+            cout << "¾ğ¾î°¡ ÇÑ±Û·Î º¯°æµÇ¾ú½À´Ï´Ù.\n";
         }
     }
 }
@@ -204,30 +421,91 @@ void ATMInterface::changeLanguage() {
 
 void ATMInterface::depositCash() {
     double amount;
-    cout << "Enter amount to deposit: ";
+    if(p_atm->language_state){
+        cout << "ÀÔ±İÇÒ ±İ¾×À» ÀÔ·ÂÇÏ¼¼¿ä: ";
+    }else{
+        cout << "Enter amount to deposit: ";
+    }
     cin >> amount;
-    cout << "Amount $" << amount << " deposited successfully.\n";
+    if(p_atm->language_state){
+        cout << "±İ¾× " << amount << "¿øÀÌ ¼º°øÀûÀ¸·Î ÀÔ±İµÇ¾ú½À´Ï´Ù.\n";
+    }else{
+        cout << "Amount $" << amount << " deposited successfully.\n";
+    }
 }
 
 void ATMInterface::withdrawCash() {
     double amount;
-    cout << "Enter amount to withdraw: ";
+    if(p_atm->language_state){
+        cout << "Ãâ±İÇÒ ±İ¾×À» ÀÔ·ÂÇÏ¼¼¿ä: ";
+    }else{
+        cout << "Enter amount to withdraw: ";
+    }
     cin >> amount;
-    cout << "Amount $" << amount << " withdrawn successfully.\n";
+    if(p_atm->language_state){
+        cout << "±İ¾× " << amount << "¿øÀÌ ¼º°øÀûÀ¸·Î Ãâ±İµÇ¾ú½À´Ï´Ù.\n";
+    }else{
+        cout << "Amount $" << amount << " withdrawn successfully.\n";
+    }
 }
 
 void ATMInterface::checkFeeDetails() {
-    cout << "Service fee: $2.50.\n";
+    if(p_atm->language_state){
+        cout << "¼­ºñ½º ¼ö¼ö·á: 2,500¿ø.\n";
+    }else{
+        cout << "Service fee: $2500.\n";
+    }
 }
 
 Bank* ATMInterface::choiceBank(bool is_single, Bank* bank){
 
     if(is_single && bank != nullptr){
-        cout << "this atm is single atm you can choice only "<<bank->getBankName()<<endl;
-        return bank;
+        int choice;
+        cout << "ÀºÇàÀ» °í¸£½Ã¿À. : \n";
+        for (size_t i = 0; i < bank_list.size(); ++i) {
+            cout << i + 1 << ". " << bank_list[i]->getBankName() << "\n";
+        }
+        
+        cin >> choice;
+        
+        return bank_list[choice-1];
     }else{
         int choice;
-        cout << "choice in the bank list banks:\n";
+        cout << "ÀºÇàÀ» °í¸£½Ã¿À. : \n";
+        for (size_t i = 0; i < bank_list.size(); ++i) {
+            cout << i + 1 << ". " << bank_list[i]->getBankName() << "\n";
+        }
+        
+        cin >> choice;
+        
+        return bank_list[choice-1];
+    }
+    
+}
+
+Bank* ATMInterface::choiceBanking(bool is_single, Bank* bank){
+
+    if(is_single && bank != nullptr){
+        int choice;
+        if(p_atm->language_state){
+        cout << "ÀºÇàÀ» °í¸£¼¼¿ä:\n";
+    }else{
+        cout << "choose the bank :\n";
+    }
+        for (size_t i = 0; i < bank_list.size(); ++i) {
+            cout << i + 1 << ". " << bank_list[i]->getBankName() << "\n";
+        }
+        
+        cin >> choice;
+        
+        return bank_list[choice-1];
+    }else{
+        int choice;
+        if(p_atm->language_state){
+        cout << "ÀºÇàÀ» °í¸£¼¼¿ä:\n";
+    }else{
+        cout << "choose the bank :\n";
+    }
         for (size_t i = 0; i < bank_list.size(); ++i) {
             cout << i + 1 << ". " << bank_list[i]->getBankName() << "\n";
         }
@@ -241,7 +519,11 @@ Bank* ATMInterface::choiceBank(bool is_single, Bank* bank){
 
 Card* ATMInterface::choiceCard(){
     int choice;
-    cout << "choice in the card list :\n";
+    if(p_atm->language_state){
+        cout << "Ä«µå ¸ñ·Ï¿¡¼­ ¼±ÅÃÇÏ¼¼¿ä:\n";
+    }else{
+        cout << "choice in the card list :\n";
+    }
     if(user_card_list.size() ==0){
         return nullptr;
     }
@@ -258,7 +540,8 @@ Card* ATMInterface::choiceCard(){
 
 Account* ATMInterface::choiceAccount(){
     int choice;
-    cout << "choice in the account list :\n";
+    cout << "°èÁÂ ¸ñ·Ï¿¡¼­ ¼±ÅÃÇÏ¼¼¿ä:\n";
+    
     if(user_account_list.size() ==0){
         return nullptr;
     }
@@ -273,13 +556,19 @@ Account* ATMInterface::choiceAccount(){
 
 
 void ATMInterface::append_user_card(Card* card){
-    cout << "user account appended, card num: "<<endl;
+
+    cout << "»ç¿ëÀÚ Ä«µå Ãß°¡µÊ, Ä«µå ¹øÈ£: "<<endl;
+    
     return user_card_list.push_back(card);
 }
 
 
 void ATMInterface::append_user_account(Account* account){
-    cout << "user account appended, acount num: "<<endl;
+    // if(p_atm->language_state){
+    //     cout << "»ç¿ëÀÚ °èÁÂ Ãß°¡µÊ, °èÁÂ ¹øÈ£: "<<endl;
+    // }else{
+    //     cout << "user account appended, account num: "<<endl;
+    // }
     return user_account_list.push_back(account);
 }
 
@@ -287,6 +576,12 @@ void ATMInterface::update_card(Card* card){
     p_card = card;
     is_inserted = true;
     p_atm->update_session(new Session());
+    if (p_atm->language_state) {
+         cout << "»õ·Î¿î ¼¼¼Ç ½ÃÀÛµÊ. ¼¼¼Ç ¹øÈ£: "<<p_atm->present_session->getSessionID()<<endl;
+    } else {
+        cout << "new session created. session num: "<<p_atm->present_session->getSessionID()<<endl;
+    }
+    
 
 }
 
@@ -294,98 +589,304 @@ Card* ATMInterface::matchcard(Bank* bank, string card_numm, string pw){
     return bank->find_card(card_numm, pw);
 }
 
-void ATMInterface::insert_cach(MoneyDict* moneydict) {
+int ATMInterface::insert_cach(MoneyDict* moneydict ,bool is_initial=false) {
     int count_1000 = 0, count_5000 = 0, count_10000 = 0, count_50000 = 0;
-    cout << "Insert 1000 won bills: ";
-    cin >> count_1000;
-    cout << "Insert 5000 won bills: ";
-    cin >> count_5000;
-    cout << "Insert 10000 won bills: ";
-    cin >> count_10000;
-    cout << "Insert 50000 won bills: ";
-    cin >> count_50000;
-    if (count_1000 < 0 || count_5000 < 0 || count_10000 < 0 || count_50000 < 0) {
-        cout << "Error: Bill counts cannot be negative." << endl;
-        return;
+    if (p_atm->language_state) {
+        cout << "1000¿ø ÁöÆó °³¼ö ÀÔ·Â: ";
+    } else {
+        cout << "Enter the number of 1000 KRW bills: ";
     }
+    cin >> count_1000;
+    if (p_atm->language_state) {
+        cout << "5000¿ø ÁöÆó °³¼ö ÀÔ·Â: ";
+    } else {
+        cout << "Enter the number of 5000 KRW bills: ";
+    }
+    cin >> count_5000;
+
+    if (p_atm->language_state) {
+        cout << "10000¿ø ÁöÆó °³¼ö ÀÔ·Â: ";
+    } else {
+        cout << "Enter the number of 10000 KRW bills: ";
+    }
+    cin >> count_10000;
+
+    if (p_atm->language_state) {
+        cout << "50000¿ø ÁöÆó °³¼ö ÀÔ·Â: ";
+    } else {
+        cout << "Enter the number of 50000 KRW bills: ";
+    }
+    cin >> count_50000;
+
+    
+    if (count_1000 < 0 || count_5000 < 0 || count_10000 < 0 || count_50000 < 0) {
+        if(p_atm->language_state){
+            cout << "¿À·ù: ÁöÆó ¼ö´Â À½¼öÀÏ ¼ö ¾ø½À´Ï´Ù." << endl;
+        }else{
+            cout << "Error: Bill counts cannot be negative." << endl;
+        }
+        return 0;
+    }
+    moneydict->setLanguageState(p_atm->language_state == 1);
     moneydict->addCash(1000, count_1000);
     moneydict->addCash(5000, count_5000);
     moneydict->addCash(10000, count_10000);
     moneydict->addCash(50000, count_50000);
+
+    if(moneydict->getCashCount()>p_atm->cash_maximum){
+        moneydict->resetCash();
+        if (p_atm->language_state) {
+        cout << "ÀÔ·Â °¡´ÉÇÑ ÃÖ´ë ÁöÆó ¼ö¸¦ ÃÊ°úÇÏ¿´½À´Ï´Ù.(¸ğµç ±İ¾×À» ¹İÈ¯ÇÕ´Ï´Ù.)" << endl;
+        } else {
+            cout << "The total cash count exceeds the maximum limit.(Returning all the money.)" << endl;
+        }
+        return 0;
+    }else{
+        if (p_atm->language_state) {
+            cout << "Á¤»óÀûÀ¸·Î ÀÔ·ÂµÇ¾ú½À´Ï´Ù." << endl;
+        } else {
+            cout << "Cash inserted successfully." << endl;
+        }
+        return 1;
+    }
+    
 }
 
+int ATMInterface::insert_cache(MoneyDict* moneydict ,bool is_initial=false) {
+    int count_1000 = 0, count_5000 = 0, count_10000 = 0, count_50000 = 0;
+    
+    cout << "1000¿ø ÁöÆó °³¼ö ÀÔ·Â: ";
+    cin >> count_1000;
+    cout << "5000¿ø ÁöÆó °³¼ö ÀÔ·Â: ";
+    cin >> count_5000;
+    cout << "10000¿ø ÁöÆó °³¼ö ÀÔ·Â: ";
+    cin >> count_10000;
+    cout << "50000¿ø ÁöÆó °³¼ö ÀÔ·Â: ";
+    cin >> count_50000;
+    
+    if (count_1000 < 0 || count_5000 < 0 || count_10000 < 0 || count_50000 < 0) {
+        if(p_atm->language_state){
+            cout << "¿À·ù: ÁöÆó ¼ö´Â À½¼öÀÏ ¼ö ¾ø½À´Ï´Ù." << endl;
+        }else{
+            cout << "Error: Bill counts cannot be negative." << endl;
+        }
+        return 0;
+    }
+    moneydict->setLanguageState(p_atm->language_state == 1);
+    moneydict->addCash(1000, count_1000);
+    moneydict->addCash(5000, count_5000);
+    moneydict->addCash(10000, count_10000);
+    moneydict->addCash(50000, count_50000);
+
+    if(p_atm->language_state){
+            cout<<"Á¤»óÀûÀ¸·Î ÀÔ·ÂµÇ¾ú½À´Ï´Ù"<<endl;
+        }else{
+            cout << "Successfully inserted" << endl;
+        }
+    
+    return 1;
+    
+}
 
 
 void ATMInterface::insert_check(){
     while (true){
         int amount;
-        cout<<"how much do you insert money> (9 is break)"<<endl;
-        cout<<"writ your check amount: ";
+        if(p_atm->language_state){
+            cout<<"¾ó¸¶¸¦ ÀÔ±İÇÏ½Ã°Ú½À´Ï±î? (0´Â Á¾·á)"<<endl;
+            cout<<"¼öÇ¥ ±İ¾×À» ÀÔ·ÂÇÏ¼¼¿ä: ";
+        }else{
+            cout<<"how much do you insert money? (0 is break)"<<endl;
+            cout<<"write your check amount: ";
+        }
         cin>>amount;
-        if(amount ==9){
+
+        if(amount ==0){
             break;
         }
+        if(amount<100000){
+            
+            if(p_atm->language_state){
+            cout<<"¼öÇ¥ÀÔ±İÀº 10¸¸¿ø ºÎÅÍ °¡´ÉÇÕ´Ï´Ù."<<endl;
+        }else{
+            cout<<"Check deposits are only allowed for amounts starting from 100,000 KRW."<<endl;
+        }
+        }
+        p_atm->slot_money->setLanguageState(p_atm->language_state == 1);
         p_atm->slot_money->addCheck(amount);
+        if(p_atm->slot_money->getCheckCount()==p_atm->check_maximum){
+
+            if(p_atm->language_state){
+            cout<<"ÀÔ±İ °¡´ÉÇÑ ÃÖ´ë ¼öÇ¥¸¦ ÀÔ±İÇÏ¿´½À´Ï´Ù. ÀÔ±İÀ» Á¾·áÇÕ´Ï´Ù."<<endl;
+        }else{
+            cout<<"The maximum number of depositable checks has been reached. Deposits will now stop."<<endl;
+        }
+            break;
+        }
     }
     
 }
 
-void ATMInterface::atm_to_account(){
-    int fee=(p_atm->primery_bank == p_card->getAccount()->get_bank()?1000:2000);
-    cout<<"insert fee: "<<fee<<endl;
-    insert_cach(p_atm->input_fee);
-    if(p_atm->input_fee->getTotalAmount()==fee){
-        int solot_amount =  p_atm ->slot_money->getTotalAmount();
-        int account_amount = p_card->getAccount()->get_amount();
-        cout<<"solot amount: "<<solot_amount<< "account amount: " <<account_amount<<endl;
-        p_card->getAccount()->update_amount(solot_amount+account_amount);
-        *p_atm->remained_money = *(p_atm->slot_money)+*(p_atm->remained_money)+(*p_atm->input_fee);
-        p_atm->reset_slot_money(); 
-        History* new_history = new History("deposit",solot_amount, p_card->getAccount(), p_atm->present_session,
-        "ì…ê¸ˆí›„ ì”ì•¡",  p_atm);
-        new_history->printHistory();
-        append_history(new_history);
-    }else{
-        cout << "fee err"<<endl;
+void ATMInterface::atm_to_account() {
+    int fee = (p_atm->primery_bank == p_card->getAccount()->get_bank() ? 1000 : 2000);
+     while (true) {
+        if (p_atm->language_state) {
+            cout << "¼ö¼ö·á: " << fee << "¿ø" << endl;
+        } else {
+            cout << "Fee: " << fee << endl;
+        }
+        insert_cach(p_atm->input_fee);
+
+        if (p_atm->input_fee->getTotalAmount() == fee) {
+            int slot_amount = p_atm->slot_money->getTotalAmount();
+            Account* account = p_card->getAccount();
+            int account_amount = account->get_amount();
+
+            account->update_amount(slot_amount + account_amount);
+            *p_atm->remained_money = *(p_atm->slot_money) + *(p_atm->remained_money) + (*p_atm->input_fee);
+            p_atm->reset_slot_money();
+            
+
+            // ÀÔ±İ ÈÄ ÀÜ¾×À» °¡Á®¿Í¼­ ¾ğ¾î¿¡ µû¶ó ¸Ş½ÃÁö »ı¼º
+            int new_balance = account->get_amount();
+            std::string balance_message = p_atm->language_state ? 
+                                        "ÀÜ¾×: " + std::to_string(new_balance) + "¿ø" :
+                                        "Balance: " + std::to_string(new_balance) + "KRW";
+
+            if (p_atm->language_state) {
+                History* new_history = new History(TransactionType::Deposit, slot_amount, account,
+                                            p_atm->present_session, "balance_after_transaction",std::to_string(new_balance), p_atm,p_card->getAccount()->get_bank());
+                new_history->printHistory(p_atm,p_card->getAccount()->get_bank()); // ¼öÁ¤µÈ printHistory È£Ãâ
+                append_history(new_history);;
+            } else {
+            // History °´Ã¼ »ı¼º ½Ã ¸Ş½ÃÁö Æ÷ÇÔ
+                History* new_history = new History(TransactionType::Deposit, slot_amount, account,
+                                            p_atm->present_session, "balance_after_transaction",std::to_string(new_balance), p_atm,p_card->getAccount()->get_bank());
+                new_history->printHistory(p_atm,p_card->getAccount()->get_bank()); // ¼öÁ¤µÈ printHistory È£Ãâ
+                append_history(new_history);
+            
+            }
+            break;
+        } else {
+            p_atm->input_fee->resetCash();
+            if (p_atm->language_state) {
+                cout << "¼ö¼ö·á ¿À·ù" << endl;
+            } else {
+                cout << "Fee error" << endl;
+            }
+        }
     }
-    
 }
 
 int ATMInterface::withdraw(){
+    const int MAX_WITHDRAWAL_AMOUNT = 500000;
     int fee=(p_atm->primery_bank == p_card->getAccount()->get_bank()?1000:2000);
     Account* p_account = p_card->getAccount();
     int get_amount;
-    cout <<"your account amount: "<<p_account->get_amount() << "fee is: "<<fee<<endl;
-    cout << "how much do you get the amount?";
-    cin>>get_amount;
-    if(get_amount+fee>p_account->get_amount()){
-        cout<<get_amount<<"don't have that much money."<<endl;
-        cout<<"you have only"<<p_account->get_amount()<<endl;
-    }else if(p_atm->remained_money->canPay(get_amount)){
-        p_account->update_amount(p_account->get_amount()-get_amount-fee);
-        MoneyDict paid_money = p_atm->remained_money->pay(get_amount);
-        cout<<"money paid: "<<get_amount<<endl;
-        paid_money.printCashes();
-        History* new_history = new History("deposit",get_amount, p_card->getAccount(), p_atm->present_session,
-        "ì…ê¸ˆí›„ ì”ì•¡",  p_atm);
-        new_history->printHistory();
-        append_history(new_history);
+    if(p_atm->language_state){
+        cout <<"´ç½ÅÀÇ °èÁÂ ÀÜ¾×: "<<p_account->get_amount() << " ¼ö¼ö·á´Â: "<<fee<<endl;
+        cout << "¾ó¸¶¸¦ Ãâ±İÇÏ½Ã°Ú½À´Ï±î?";
     }else{
-        cout << "we don't have money"<<endl;
+        cout <<"your account amount: "<<p_account->get_amount() << " fee is: "<<fee<<endl;
+        cout << "how much do you get the amount?";
     }
+    // if ¹® Ãß°¡ÇÏ°í get_amount º¯¼ö°¡ 50¸¸¿ø ³ÑÀ» °æ¿ì Ãâ±İ ¾ÈµÊ
+    cin>>get_amount;
+     if (get_amount > MAX_WITHDRAWAL_AMOUNT) {
+        if (p_atm->language_state) {
+            cout << "°Å·¡´ç Ãâ±İ ÇÑµµ¸¦ ÃÊ°úÇß½À´Ï´Ù. ÃÖ´ë Ãâ±İ ±İ¾×Àº 50¸¸ ¿øÀÔ´Ï´Ù.\n";
+        } else {
+            cout << "You have exceeded the withdrawal limit per transaction. The maximum withdrawal is 500,000 KRW.\n";
+        }
+        return 0;
+    }
+    
+    if(get_amount+fee>p_account->get_amount()){
+        if(p_atm->language_state){
+            cout<<get_amount<<"¿ø ¸¸Å­ÀÇ ±İ¾×ÀÌ ¾ø½À´Ï´Ù."<<endl;
+            cout<<"´ç½ÅÀº "<<p_account->get_amount()<<"¿ø ¸¸ °¡Áö°í ÀÖ½À´Ï´Ù"<<endl;
+        }else{
+            cout<<get_amount<<" don't have that much money."<<endl;
+            cout<<"you have only "<<p_account->get_amount()<<endl;
+        }
+    }else if(p_atm->remained_money->canPay(get_amount)){
+        Session* current_session = p_atm->present_session;
 
+    // Ãâ±İ È½¼ö Áõ°¡
+        if (!current_session->incrementWithdrawCount()) { // Ãâ±İ È½¼ö Á¦ÇÑ ÃÊ°ú È®ÀÎ
+            if (p_atm->language_state) {
+                std::cout << "Ãâ±İ È½¼ö°¡ ÇÑµµ¸¦ ÃÊ°úÇß½À´Ï´Ù. ¼¼¼ÇÀ» ´Ù½Ã ½ÃÀÛÇÏ¼¼¿ä." << std::endl;
+            } else {
+                std::cout << "Withdrawal limit exceeded. Please start a new session." << std::endl;
+            }
+            return 3; // Ãâ±İ ½ÇÆĞ Ã³¸®
+            }else{
+            p_account->update_amount(p_account->get_amount()-get_amount-fee);
+            p_atm->slot_money->setLanguageState(p_atm->language_state == 1);
+            MoneyDict paid_money = p_atm->remained_money->pay(get_amount);
+            if(p_atm->language_state){
+                cout<<"ÁöºÒµÈ ±İ¾×: "<<get_amount<<endl;
+            }else{
+                cout<<"money paid: "<<get_amount<<endl;
+            }
+            paid_money.setLanguageState(p_atm->language_state == 1);
+            paid_money.printCashes();
+
+            
+
+            if(p_atm->language_state){
+                int remaining_balance = p_account->get_amount(); // Ãâ±İ ÈÄ ÀÜ¾× °¡Á®¿À±â
+                std::string balance_message = "ÀÜ¾×: " + std::to_string(remaining_balance) + "¿ø";
+                History* new_history = new History(TransactionType::Withdrawal,get_amount, p_card->getAccount(), p_atm->present_session,
+                "balance_after_transaction",std::to_string(remaining_balance),  p_atm,p_card->getAccount()->get_bank());
+                new_history->printHistory(p_atm,p_card->getAccount()->get_bank());
+                append_history(new_history);
+            }else{
+                int remaining_balance = p_account->get_amount(); // Ãâ±İ ÈÄ ÀÜ¾× °¡Á®¿À±â
+                std::string balance_message = "Balance: " + std::to_string(remaining_balance) + " KRW";
+                History* new_history = new History( TransactionType::Withdrawal,get_amount, p_card->getAccount(), p_atm->present_session,
+                "balance_after_transaction",std::to_string(remaining_balance),  p_atm,p_card->getAccount()->get_bank());
+                new_history->printHistory(p_atm,p_card->getAccount()->get_bank());
+                append_history(new_history);
+            }
+        }
+    }else{
+        if(p_atm->language_state){
+            cout << "Ãâ±İÇÒ ¼ö ¾ø½À´Ï´Ù."<<endl;
+        }else{
+            cout << "we can't withdraw money"<<endl;
+        }
+    return 3;
+    }
+    return 0;
 }
+
+const std::vector<ATM*>& ATMInterface::getATMList() const {
+    return atm_list;
+}
+
+const std::vector<Account*>& ATMInterface::getAccountList() const {
+    return user_account_list;
+}
+
 
 Account* ATMInterface::check_account_num(){
     string account_num;
     Account* account = nullptr;
-    Bank* bank = choiceBank(p_atm->is_single_bank_atm, p_atm->primery_bank);
-    int retry_count =0;
-    cout << "account num: ";
+    Bank* bank = choiceBanking(p_atm->is_single_bank_atm, p_atm->primery_bank);
+    if(p_atm->language_state){
+        cout << "°èÁÂ ¹øÈ£: ";
+    }else{
+        cout << "account num: ";
+    }
     cin >>account_num;
     account = bank->find_account_by_number(account_num);
     if(account==nullptr){
-        cout << "account num: "<<account_num<<"not exist"<<endl;
+        if(p_atm->language_state){
+            cout << "°èÁÂ ¹øÈ£: "<<account_num<<" Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù"<<endl;
+        }else{
+            cout << "account num: "<<account_num<<" not exist"<<endl;
+        }
     }
     return account;
 }
@@ -397,7 +898,11 @@ bool ATMInterface::account_to_account(){
     if(target_account==nullptr){
         return false;
     }
-    cout << "how much to transfer?"<<endl;
+    if(p_atm->language_state){
+        cout << "¾ó¸¶¸¦ ¼Û±İÇÏ½Ã°Ú½À´Ï±î?"<<endl;
+    }else{
+        cout << "how much to transfer?"<<endl;
+    }
     cin>>amount;
     Account* p_account = p_card->getAccount();
     Bank* primery_bank = p_atm->primery_bank;
@@ -412,35 +917,91 @@ bool ATMInterface::account_to_account(){
         fee =3000;
     }
     if(amount+fee>p_account->get_amount()){
+        cout <<"°èÁÂ ÀÜ¾×º¸´Ù ¸¹Àº ±İ¾×ÀÔ´Ï´Ù. ¼Û±İºÒ°¡´ÉÇÕ´Ï´Ù."<<endl;
         return false;
     }else{
         p_account -> update_amount(p_account->get_amount()-amount-fee);
         transfer(target_account, amount);
+
+
+        std::string target_account_info = target_account->get_account_number() + " (" + target_account->get_user_name() + ")";
+
+        if(p_atm->language_state){
+            History* new_history = new History(TransactionType::Transfer,amount, p_card->getAccount(), p_atm->present_session,
+            "target_account",target_account->get_account_number(),  p_atm,p_card->getAccount()->get_bank());
+            new_history->printHistory(p_atm,p_card->getAccount()->get_bank());
+            append_history(new_history);
+        }else{
+            
+            History* new_history = new History(TransactionType::Transfer,amount, p_card->getAccount(), p_atm->present_session,
+            "target_account",target_account->get_account_number(),  p_atm,p_card->getAccount()->get_bank());
+            new_history->printHistory(p_atm,p_card->getAccount()->get_bank());
+            append_history(new_history);
+        }
         return true;
     }
     
 }
 
-bool ATMInterface::slot_to_account(){
-    insert_cach(p_atm->slot_money);
-    insert_check();
-    int fee = 1000;
-    cout<<"insert fee: "<<fee<<endl;
-    insert_cach(p_atm->input_fee);
-    if(p_atm->input_fee->getTotalAmount()==fee){
-        Account* target_account = check_account_num();
-        int amount = p_atm->slot_money->getTotalAmount();
-        if(target_account==nullptr){
-            return false;
+bool ATMInterface::slot_to_account() {
+    Account* target_account = check_account_num(); // ÀºÇà ¹× °èÁÂ¹øÈ£ ¸ÕÀú È®ÀÎ
+    if (target_account == nullptr) {
+        return false;
+    }
+    std::string target_account_info = target_account->get_account_number() + " (" + target_account->get_user_name() + ")";
+
+
+    if (p_atm->language_state) {
+        cout << "°èÁÂ È®ÀÎ ¿Ï·á. µ·°ú ¼öÇ¥¸¦ »ğÀÔÇÏ¼¼¿ä." << endl;
+    } else {
+        cout << "Account verified. Please insert cash and checks." << endl;
+    }
+
+    insert_cach(p_atm->slot_money); // µ· »ğÀÔ
+    insert_check();                 // ¼öÇ¥ »ğÀÔ
+
+    int fee = 1000; // ¼ö¼ö·á °íÁ¤
+    while (true) {
+        if (p_atm->language_state) {
+            cout << "¼ö¼ö·á: " << fee << "¿ø" << endl;
+        } else {
+            cout << "Insert fee: " << fee << endl;
         }
-        *p_atm->remained_money = *(p_atm->slot_money)+*(p_atm->remained_money)+*(p_atm->input_fee);
-        transfer(target_account, amount);
-        p_atm->reset_slot_money();
-        return true;
-    }else{
-        cout <<"fee err"<<endl;
+
+        insert_cach(p_atm->input_fee); // ¼ö¼ö·á ÀÔ·Â¹Ş±â
+
+        if (p_atm->input_fee->getTotalAmount() == fee) {
+            int amount = p_atm->slot_money->getTotalAmount(); // »ğÀÔµÈ ÃÑ ±İ¾× °è»ê
+            *p_atm->remained_money = *(p_atm->slot_money) + *(p_atm->remained_money) + *(p_atm->input_fee);
+
+            // ´ë»ó °èÁÂ·Î ¼Û±İ
+            transfer(target_account, amount);
+            p_atm->reset_slot_money(); // ½½·Ô ÃÊ±âÈ­
+
+            // °Å·¡ ±â·Ï »ı¼º ¹× ÀúÀå
+            if (p_atm->language_state) {
+                History* new_history = new History(TransactionType::Transfer, amount, p_card->getAccount(),
+                                                   p_atm->present_session, "target_account",target_account->get_account_number(), p_atm, p_card->getAccount()->get_bank());
+                new_history->printHistory(p_atm, p_card->getAccount()->get_bank());
+                append_history(new_history);
+            } else {
+                History* new_history = new History(TransactionType::Transfer, amount, p_card->getAccount(),
+                                                   p_atm->present_session, "target_account",target_account->get_account_number(), p_atm, p_card->getAccount()->get_bank());
+                new_history->printHistory(p_atm, p_card->getAccount()->get_bank());
+                append_history(new_history);
+            }
+            return true; // ÀÛ¾÷ ¼º°ø
+        } else {
+            p_atm->input_fee->resetCash(); // Àß¸øµÈ ¼ö¼ö·á ÀÔ·Â ½Ã ÃÊ±âÈ­
+            if (p_atm->language_state) {
+                cout << "¼ö¼ö·á ¿À·ùÀÔ´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇØÁÖ¼¼¿ä." << endl;
+            } else {
+                cout << "Fee error. Please try again." << endl;
+            }
+        }
     }
 }
+
 
 void ATMInterface::append_history(History* new_history){
     history_list.push_back(new_history);
@@ -449,29 +1010,43 @@ void ATMInterface::append_history(History* new_history){
 void ATMInterface::print_by_session(Session* session) {
     string session_id = session->getSessionID();
     bool found = false;
-    cout << "print by session"<<endl;
-    // Iterate over the history list
+
+    if (p_atm->language_state) {
+        std::cout << "¼¼¼Çº°·Î Ãâ·ÂÇÕ´Ï´Ù" << std::endl;
+    } else {
+        std::cout << "Print by session" << std::endl;
+    }
+
+    // °Å·¡ ±â·Ï Å½»ö
     for (const auto& history : history_list) {
-        // Assuming History has a `getHistory` method that gives us a HistoryData object
         HistoryData data = history->getHistory();
 
-        // Compare session_id
+        // ¼¼¼Ç ID ºñ±³
         if (data.session_id == session_id) {
             found = true;
-            history->printHistory();
+            history->printHistory(p_atm,p_card->getAccount()->get_bank()); // Áö±İ ¼öÁ¤ÇÑ ºÎºĞ
             std::cout << "------------------------------------" << std::endl;
         }
     }
 
     if (!found) {
-        std::cout << "No transactions found for session ID: " << session_id << std::endl;
+        if (p_atm->language_state) {
+            std::cout << "¼¼¼Ç ID: " << session_id << "¿¡ ´ëÇÑ °Å·¡°¡ ¾ø½À´Ï´Ù" << std::endl;
+        } else {
+            std::cout << "No transactions found for session ID: " << session_id << std::endl;
+        }
     }
 }
+
 
 void ATMInterface::print_by_atm() {
     string serial_num = p_atm->serial_number;
     bool found = false;
-    cout << "print by atm"<<endl;
+    if(p_atm->language_state){
+        cout << "ATMº°·Î Ãâ·ÂÇÕ´Ï´Ù"<<endl;
+    }else{
+        cout << "print by atm"<<endl;
+    }
     // Iterate over the history list
     for (const auto& history : history_list) {
         // Assuming History has a `getHistory` method that gives us a HistoryData object
@@ -480,49 +1055,96 @@ void ATMInterface::print_by_atm() {
         // Compare session_id
         if (data.atm_serial_num == serial_num) {
             found = true;
-            history->printHistory();
+            history->printHistory(p_atm,p_card->getAccount()->get_bank());
             std::cout << "------------------------------------" << std::endl;
         }
     }
 
     if (!found) {
-        std::cout << "No transactions found for atm serial number: " << serial_num << std::endl;
+        if(p_atm->language_state){
+            std::cout << "ATM ÀÏ·Ã¹øÈ£: " << serial_num << "¿¡ ´ëÇÑ °Å·¡°¡ ¾ø½À´Ï´Ù" << std::endl;
+        }else{
+            std::cout << "No transactions found for atm serial number: " << serial_num << std::endl;
+        }
     }
 }
 
 void ATMInterface::export_by_atm() {
-    string serial_num = p_atm->serial_number;
-    bool found = false;
-    
-    // íŒŒì¼ ì¶œë ¥ ìŠ¤íŠ¸ë¦¼ ê°ì²´ ìƒì„±
     std::ofstream outFile("transaction_by_atm.txt");
-
     if (!outFile) {
-        std::cerr << "Error opening file for writing." << std::endl;
+        if (p_atm->language_state) {
+            std::cerr << "ÆÄÀÏÀ» ¾²±â À§ÇØ ¿­ ¶§ ¿À·ù°¡ ¹ß»ıÇß½À´Ï´Ù." << std::endl;
+        } else {
+            std::cerr << "Error opening file for writing." << std::endl;
+        }
         return;
     }
 
-    outFile << "Transactions for ATM serial number: " << serial_num << std::endl;
-    outFile << "======================================" << std::endl;
+    bool found = false;
+    std::string serial_num = p_atm->serial_number;
 
-    // Iterate over the history list
+    // Header Ãâ·Â
+    if (p_atm->language_state) {
+        outFile << "ATM ÀÏ·Ã¹øÈ£: " << serial_num << "ÀÇ °Å·¡ ³»¿ª" << std::endl;
+        outFile << "======================================" << std::endl;
+    } else {
+        outFile << "Transactions for ATM serial number: " << serial_num << std::endl;
+        outFile << "======================================" << std::endl;
+    }
+
+    // °Å·¡ ±â·Ï Ãâ·Â
     for (const auto& history : history_list) {
-        // Assuming History has a `getHistory` method that gives us a HistoryData object
         HistoryData data = history->getHistory();
 
-        // Compare session_id (atm_serial_num) with the given ATM serial number
+        // ATM Serial Number ÇÊÅÍ¸µ À¯Áö
         if (data.atm_serial_num == serial_num) {
             found = true;
-            // Write the history to file (assuming `printHistory` writes to console, we'll call the logic)
-            history->printHistoryToFile(outFile);  // Adjust the method to print to file
+            history->printHistoryToFile(outFile, p_atm,p_card->getAccount()->get_bank()); // ATM* Àü´Ş·Î ¾ğ¾î ¹İ¿µ
             outFile << "------------------------------------" << std::endl;
         }
     }
 
+    // °Å·¡ ³»¿ªÀÌ ¾øÀ» °æ¿ì ¸Ş½ÃÁö Ãâ·Â
     if (!found) {
-        outFile << "No transactions found for ATM serial number: " << serial_num << std::endl;
+        if (p_atm->language_state) {
+            outFile << "ATM ÀÏ·Ã¹øÈ£: " << serial_num << "¿¡ ´ëÇÑ °Å·¡°¡ ¾ø½À´Ï´Ù" << std::endl;
+        } else {
+            outFile << "No transactions found for ATM serial number: " << serial_num << std::endl;
+        }
     }
 
-    // Close the file after writing
     outFile.close();
+
+    // ¼º°ø ¸Ş½ÃÁö Ãâ·Â
+    if (p_atm->language_state) {
+        std::cout << "Á¤»óÀûÀ¸·Î Ãâ·ÂµÇ¾ú½À´Ï´Ù." << std::endl;
+    } else {
+        std::cout << "Successfully executed." << std::endl;
+    }
+}
+
+ATM* ATMInterface::append_ATM(){
+    if(bank_list.size()==0){
+        cout <<"create bank fist"<<endl;
+        return nullptr;
+    }else{
+        ATM* atm =createATM();
+        if(atm!=nullptr){
+            atm_list.push_back(atm);
+            return atm;
+        }else{
+            return nullptr;
+        }
+        
+    }
+}
+
+int ATMInterface::append_bank(string bank_name){
+    for (const auto& bank : bank_list) {
+        if(bank->getBankName()==bank_name){
+            return 0;
+        } 
+    }
+    bank_list.push_back(new Bank(bank_name));
+    return 1;
 }

@@ -1,7 +1,7 @@
 #include "Session.h"
 
 #include <iostream>
-#include <random> // ë‚œìˆ˜ ìƒì„±ì„ ìœ„í•œ í—¤ë”
+#include <random> // ³­¼ö »ı¼ºÀ» À§ÇÑ Çì´õ
 #include <string>
 
 using namespace std;
@@ -9,25 +9,28 @@ using namespace std;
 int Session::session_counter = 1;
 
 Session::Session()
-    :withdraw_count(0) {
+    :tranjection_count(0) {
         string serial_num = to_string(session_counter);
         serial_num = string(6 - serial_num.length(), '0') + serial_num;
         session_id = serial_num;
         session_counter++;
-        cout << "new session created sessionnum: "<<session_id<<endl;
+        
     }
 
 Session::~Session() {}
 
-void Session::incrementWithdrawCount() {
-    ++withdraw_count;
-    if (withdraw_count > withdraw_count_threshold) {
-        throw std::runtime_error("ì¶œê¸ˆ íšŸìˆ˜ê°€ í•œë„ë¥¼ ì´ˆê³¼í–ˆìŠµë‹ˆë‹¤.");
+
+
+bool Session::incrementWithdrawCount() {
+    ++tranjection_count;
+    if (tranjection_count > tranjection_count_threshold) {
+        return false;
     }
+    return true;
 }
 
 int Session::getWithdrawCount() const {
-    return withdraw_count;
+    return tranjection_count;
 }
 
 std::string Session::getSessionID() const {

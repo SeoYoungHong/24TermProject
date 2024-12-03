@@ -3,40 +3,65 @@
 #include "Card.h"
 
 #include <iostream>
-#include <random> // ë‚œìˆ˜ ìƒì„±ì„ ìœ„í•œ í—¤ë”
+#include <random> // ³­¼ö »ı¼ºÀ» À§ÇÑ Çì´õ
 #include <string>
 
 using namespace std;
 class Card;
 int Account::account_counter = 1;
 
+Account::Account(Bank* bank, const std::string& user_name)
+    : p_bank(bank), user_name(user_name), amount(0), bank_name(bank->getBankName()) { // ÀºÇà ÀÌ¸§ ÃÊ±âÈ­
+    std::string serial_num;
 
-// ìƒì„±ì ì •ì˜
-Account::Account(Bank* bank)
-    : p_bank(bank), amount(0) {
-    string serial_num = to_string(account_counter);
-    serial_num = string(12 - serial_num.length(), '0') + serial_num;  // 12ìë¦¬ë¡œ ë§ì¶”ê¸°
+    while (true) { // °èÁÂ ¹øÈ£ ÀÔ·Â ·çÇÁ
+        std::cout << "»ı¼ºÇÒ °èÁÂ¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä.(12ÀÚ¸®): " << std::endl;
+        std::cin >> serial_num;
+
+        // °èÁÂ ¹øÈ£ ±æÀÌ È®ÀÎ
+        if (serial_num.length() == 12) {
+            break; // À¯È¿ÇÑ ÀÔ·Â
+        } else {
+            std::cout << "°èÁÂ ¹øÈ£´Â ¹İµå½Ã 12ÀÚ¸®¿©¾ß ÇÕ´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇØÁÖ¼¼¿ä." << std::endl;
+        }
+    }
+
     account_counter++;
-    p_account_number =serial_num;
+    p_account_number = serial_num;
     bank->append_user_account(this);
-    amount=0;
-    cout << "[Construct] create account, account_number: " << p_account_number << endl;
+
+    std::cout << "»ı¼ºµÈ °èÁÂÀÇ ÃÊ±â ±İ¾×À» ÀÔ·ÂÇÏ¼¼¿ä(KRW): " << std::endl;
+    std::cin >> amount;
+
+    std::cout << "°èÁÂ »ı¼º ¿Ï·á." << std::endl;
+    std::cout << "ÀºÇà ÀÌ¸§: " << bank_name 
+              << ", °èÁÂ ¹øÈ£: " << p_account_number 
+              << ", ÃÊ±â ±İ¾×: " << amount 
+              << "KRW, »ç¿ëÀÚ ÀÌ¸§: " << user_name << std::endl;
 }
 
-// ì†Œë©¸ì ì •ì˜
+
+// ¼Ò¸êÀÚ Á¤ÀÇ
 Account::~Account() {
     cout << "[Destruct] destruct account, account_number: " << p_account_number << endl;
-    // p_bankì— ëŒ€í•œ ë©”ëª¨ë¦¬ í•´ì œë¥¼ í•´ì•¼ í•˜ëŠ” ê²½ìš°, ì´ê³³ì—ì„œ ì²˜ë¦¬ (í•„ìš”ì‹œ)
-    // ì˜ˆ: delete p_bank; (ë§Œì•½ Accountê°€ Bankì˜ ì†Œìœ ìë¼ë©´)
+    // p_bank¿¡ ´ëÇÑ ¸Ş¸ğ¸® ÇØÁ¦¸¦ ÇØ¾ß ÇÏ´Â °æ¿ì, ÀÌ°÷¿¡¼­ Ã³¸® (ÇÊ¿ä½Ã)
+    // ¿¹: delete p_bank; (¸¸¾à Account°¡ BankÀÇ ¼ÒÀ¯ÀÚ¶ó¸é)
 }
 
-// ì”ì•¡ ì—…ë°ì´íŠ¸ í•¨ìˆ˜ ì •ì˜
+string Account::get_user_name() const {
+    return user_name;
+}
+
+std::string Account::get_bank_name() const { // Áö±İ ¼öÁ¤ÇÑ ºÎºĞ: ÀºÇà ÀÌ¸§ ¹İÈ¯
+    return bank_name;
+}
+
+// ÀÜ¾× ¾÷µ¥ÀÌÆ® ÇÔ¼ö Á¤ÀÇ
 void Account::update_amount(int changed_amount) {
     amount = changed_amount;
-    cout << "Updated amount: " << amount << endl;
 }
 
-// ì”ì•¡ ì—…ë°ì´íŠ¸ í•¨ìˆ˜ ì •ì˜
+// ÀÜ¾× ¾÷µ¥ÀÌÆ® ÇÔ¼ö Á¤ÀÇ
 string Account::get_account_number() {
     return p_account_number;
 }
@@ -44,10 +69,11 @@ int Account::get_amount(){
     return amount;
 }
 
-void Account::append_user_card(Card* card){
-    cout << "user account appended, card num: "<<endl;
-    p_bank->append_user_card(card);
-    user_card_list.push_back(card);
+void Account::append_user_card(Card* card) {
+    // ±âÁ¸ ÄÚµå¿¡¼­ user_card_list¿¡ Ä«µå °´Ã¼¸¦ ÀúÀåÇÏ´ø ºÎºĞÀ» Ä«µå ¹øÈ£¸¸ ÀúÀåÇÏµµ·Ï ¼öÁ¤
+    // user_card_list.push_back(card); -> Á¦°Å
+    p_bank->append_user_card(card); // ±âÁ¸ ·ÎÁ÷ À¯Áö
+    user_card_list.push_back(card->get_card_num()); // Ä«µå ¹øÈ£¸¸ ¸®½ºÆ®¿¡ Ãß°¡
 }
 
 Bank* Account::get_bank(){

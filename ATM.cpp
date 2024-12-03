@@ -1,10 +1,10 @@
 #include "ATM.h"
-#include "Bank.h"  // Bank í´ë˜ìŠ¤ê°€ ì •ì˜ëœ í—¤ë” íŒŒì¼ì„ í¬í•¨
-#include "MoneyDict.h"  // MoneyDict í´ë˜ìŠ¤ê°€ ì •ì˜ëœ í—¤ë” íŒŒì¼ì„ í¬í•¨
-#include "Session.h"  // Session í´ë˜ìŠ¤ê°€ ì •ì˜ëœ í—¤ë” íŒŒì¼ì„ í¬í•¨
+#include "Bank.h"  // Bank Å¬·¡½º°¡ Á¤ÀÇµÈ Çì´õ ÆÄÀÏÀ» Æ÷ÇÔ
+#include "MoneyDict.h"  // MoneyDict Å¬·¡½º°¡ Á¤ÀÇµÈ Çì´õ ÆÄÀÏÀ» Æ÷ÇÔ
+#include "Session.h"  // Session Å¬·¡½º°¡ Á¤ÀÇµÈ Çì´õ ÆÄÀÏÀ» Æ÷ÇÔ
 
 #include <iostream>
-#include <random> // ë‚œìˆ˜ ìƒì„±ì„ ìœ„í•œ í—¤ë”
+#include <random> // ³­¼ö »ı¼ºÀ» À§ÇÑ Çì´õ
 #include <string>
 
 using namespace std;
@@ -12,19 +12,20 @@ using namespace std;
 int ATM::serial_counter = 1;
 
 
-// ìƒì„±ì ì •ì˜
+// »ı¼ºÀÚ Á¤ÀÇ
 ATM::ATM(Bank* bank, bool is_single, bool is_unilingual)
     : primery_bank(bank), is_single_bank_atm(is_single),
     is_unilingual_atm(is_unilingual), language_state(0),
     present_session(nullptr) {
     string serial_num = to_string(serial_counter);
-    serial_num = string(12 - serial_num.length(), '0') + serial_num;  // 12ìë¦¬ë¡œ ë§ì¶”ê¸°
+    serial_num = string(6 - serial_num.length(), '0') + serial_num;  // 12ÀÚ¸®·Î ¸ÂÃß±â
     serial_counter++;  //
     serial_number = serial_num;
-    // í•„ìš”í•œ ì´ˆê¸°í™” ì‘ì—… (ê¸°ë³¸ê°’ì´ ìˆë‹¤ë©´)
+    cout << "[ATM »ı¼º ¿Ï·á] ½Ã¸®¾ó ¹øÈ£ : " << serial_number << endl;  // Serial Number Ãâ·Â
+    // ÇÊ¿äÇÑ ÃÊ±âÈ­ ÀÛ¾÷ (±âº»°ªÀÌ ÀÖ´Ù¸é)
 }
 
-// ì†Œë©¸ì ì •ì˜
+// ¼Ò¸êÀÚ Á¤ÀÇ
 ATM::~ATM() {
     if (remained_money != nullptr) {
         delete remained_money;
@@ -40,28 +41,28 @@ ATM::~ATM() {
     }
 }
 
-// slot_money ì—…ë°ì´íŠ¸
+// slot_money ¾÷µ¥ÀÌÆ®
 void ATM::update_slot_money(MoneyDict* input_money) {
     if (slot_money != nullptr) {
-        delete slot_money;  // ê¸°ì¡´ slot_moneyê°€ ìˆë‹¤ë©´ ì‚­ì œ
+        delete slot_money;  // ±âÁ¸ slot_money°¡ ÀÖ´Ù¸é »èÁ¦
     }
-    slot_money = input_money;  // ìƒˆë¡œìš´ slot_money í• ë‹¹
+    slot_money = input_money;  // »õ·Î¿î slot_money ÇÒ´ç
 }
 
-// remained_money ì—…ë°ì´íŠ¸
+// remained_money ¾÷µ¥ÀÌÆ®
 void ATM::update_remained_money(MoneyDict* input_money) {
     if (remained_money != nullptr) {
-        delete remained_money;  // ê¸°ì¡´ remained_moneyê°€ ìˆë‹¤ë©´ ì‚­ì œ
+        delete remained_money;  // ±âÁ¸ remained_money°¡ ÀÖ´Ù¸é »èÁ¦
     }
-    remained_money = input_money;  // ìƒˆë¡œìš´ remained_money í• ë‹¹
+    remained_money = input_money;  // »õ·Î¿î remained_money ÇÒ´ç
 }
 
-// ì„¸ì…˜ ì—…ë°ì´íŠ¸
+// ¼¼¼Ç ¾÷µ¥ÀÌÆ®
 void ATM::update_session(Session* new_session) {
     if (present_session != nullptr) {
-        delete present_session;  // ê¸°ì¡´ ì„¸ì…˜ì´ ìˆë‹¤ë©´ ì‚­ì œ
+        delete present_session;  // ±âÁ¸ ¼¼¼ÇÀÌ ÀÖ´Ù¸é »èÁ¦
     }
-    present_session = new_session;  // ìƒˆë¡œìš´ ì„¸ì…˜ í• ë‹¹
+    present_session = new_session;  // »õ·Î¿î ¼¼¼Ç ÇÒ´ç
 }
 
 void ATM::reset_slot_money(){

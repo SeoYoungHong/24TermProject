@@ -1,0 +1,18 @@
+Transactions for ATM serial number: 000001
+======================================
+Session ID: 000001
+Transaction ID: 000001
+Bank Name: ±ππŒ¿∫«‡
+Account Number: 123456789012
+Transaction Type: Deposit
+Amount: 330000
+Additional information: Balance after transaction: 830000 KRW
+------------------------------------
+Session ID: 000002
+Transaction ID: 000002
+Bank Name: ±ππŒ¿∫«‡
+Account Number: 010908343640
+Transaction Type: Withdrawal
+Amount: 200000
+Additional information: Balance after transaction: 299000 KRW
+------------------------------------

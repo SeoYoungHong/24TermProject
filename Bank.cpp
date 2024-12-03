@@ -1,15 +1,15 @@
 // Bank.cpp
 #include "Bank.h"
 using namespace std;
-// ìƒì„±ì
+// »ı¼ºÀÚ
 Bank::Bank(const std::string& name) : bank_name(name) {}
 
-// ì†Œë©¸ì
+// ¼Ò¸êÀÚ
 Bank::~Bank() {
-    std::cout << bank_name << "ê°€ ì‚­ì œë˜ì—ˆìŠµë‹ˆë‹¤.\n";
+    std::cout << bank_name << "°¡ »èÁ¦µÇ¾ú½À´Ï´Ù.\n";
 }
 
-// ì€í–‰ ì´ë¦„ ì ‘ê·¼ì
+// ÀºÇà ÀÌ¸§ Á¢±ÙÀÚ
 std::string Bank::getBankName() const {
     return bank_name;
 }
@@ -19,38 +19,38 @@ void Bank::setBankName(const std::string& name) {
 }
 
 void Bank::append_user_card(Card* card){
-    cout << "user account appended, card num: "<<endl;
+    // cout << "user account appended, card num: "<<endl;
     return user_card_list.push_back(card);
 }
 
 
 void Bank::append_user_account(Account* account){
-    cout << "user account appended, acount num: "<<endl;
+    // cout << "user account appended, acount num: "<<endl;
     return user_account_list.push_back(account);
 }
 
 Card* Bank::find_card(string input_id,string input_pw)  {
     for (const auto& card : user_card_list) {
         if (card->match_credentials(input_id, input_pw)) {
-            return card; // ì¼ì¹˜í•˜ëŠ” ê³„ì •ì„ ë°˜í™˜
+            return card; // ÀÏÄ¡ÇÏ´Â °èÁ¤À» ¹İÈ¯
         }
     }
-    return nullptr; // ì¼ì¹˜í•˜ëŠ” ê³„ì •ì„ ì°¾ì§€ ëª»í•œ ê²½ìš°
+    return nullptr; // ÀÏÄ¡ÇÏ´Â °èÁ¤À» Ã£Áö ¸øÇÑ °æ¿ì
 }
 
 Card* Bank::find_card_by_number(const std::string& cardnum) {
     for (const auto& card : user_card_list) {
-        if (card->get_card_num() == cardnum) { // ì¹´ë“œ ë²ˆí˜¸ ë¹„êµ
+        if (card->get_card_num() == cardnum) { // Ä«µå ¹øÈ£ ºñ±³
             return card;
         }
     }
-    return nullptr; // ì¼ì¹˜í•˜ëŠ” ì¹´ë“œê°€ ì—†ëŠ” ê²½ìš°
+    return nullptr; // ÀÏÄ¡ÇÏ´Â Ä«µå°¡ ¾ø´Â °æ¿ì
 }
 Account* Bank::find_account_by_number(const std::string& account_num) {
     for (const auto& account : user_account_list) {
-        if (account->get_account_number() == account_num) { // ì¹´ë“œ ë²ˆí˜¸ ë¹„êµ
+        if (account->get_account_number() == account_num) { // Ä«µå ¹øÈ£ ºñ±³
             return account;
         }
     }
-    return nullptr; // ì¼ì¹˜í•˜ëŠ” ì¹´ë“œê°€ ì—†ëŠ” ê²½ìš°
+    return nullptr; // ÀÏÄ¡ÇÏ´Â Ä«µå°¡ ¾ø´Â °æ¿ì
 }

@@ -1,30 +1,30 @@
 ATMSystem/
-â”‚
-â”œâ”€â”€ src/                     // ì†ŒìŠ¤ ì½”ë“œ
-â”‚   â”œâ”€â”€ main.cpp             // í”„ë¡œê·¸ë¨ ì§„ì…ì 
-â”‚   â”œâ”€â”€ object/              // ê°ì²´ ê´€ë ¨ íŒŒì¼
-â”‚   â”‚   â”œâ”€â”€ ATM.cpp          // ATM í´ë˜ìŠ¤ êµ¬í˜„
-â”‚   â”‚   â”œâ”€â”€ ATM.h            // ATM í´ë˜ìŠ¤ í—¤ë”
-â”‚   â”‚   â”œâ”€â”€ User.cpp         // User í´ë˜ìŠ¤ êµ¬í˜„
-â”‚   â”‚   â””â”€â”€ User.h           // User í´ë˜ìŠ¤ í—¤ë”
-â”‚   â””â”€â”€ strategy/            // ì „ëµ ê´€ë ¨ íŒŒì¼
-â”‚       â”œâ”€â”€ TransactionStrategy.h // ì „ëµ ì¸í„°í˜ì´ìŠ¤
-â”‚       â”œâ”€â”€ WithdrawalStrategy.cpp // ì¸ì¶œ ì „ëµ êµ¬í˜„
-â”‚       â”œâ”€â”€ WithdrawalStrategy.h
-â”‚       â”œâ”€â”€ DepositStrategy.cpp    // ì…ê¸ˆ ì „ëµ êµ¬í˜„
-â”‚       â”œâ”€â”€ DepositStrategy.h
-â”‚       â”œâ”€â”€ TransferStrategy.cpp    // ì´ì²´ ì „ëµ êµ¬í˜„
-â”‚       â””â”€â”€ TransferStrategy.h
-â”‚
-â”œâ”€â”€ tests/                   // í…ŒìŠ¤íŠ¸ ì½”ë“œ
-â”‚   â”œâ”€â”€ ATMTest.cpp          // ATM í´ë˜ìŠ¤ í…ŒìŠ¤íŠ¸
-â”‚   â”œâ”€â”€ WithdrawalTest.cpp   // ì¸ì¶œ ì „ëµ í…ŒìŠ¤íŠ¸
-â”‚   â”œâ”€â”€ DepositTest.cpp      // ì…ê¸ˆ ì „ëµ í…ŒìŠ¤íŠ¸
-â”‚   â””â”€â”€ TransferTest.cpp     // ì´ì²´ ì „ëµ í…ŒìŠ¤íŠ¸
-â”‚
-â”œâ”€â”€ docs/                    // ë¬¸ì„œí™”
-â”‚   â”œâ”€â”€ design.md            // ì„¤ê³„ ë¬¸ì„œ
-â”‚   â”œâ”€â”€ user_manual.md       // ì‚¬ìš©ì ë§¤ë‰´ì–¼
-â”‚   â””â”€â”€ api_reference.md      // API ë ˆí¼ëŸ°ìŠ¤
-â”‚
-â””â”€â”€ CMakeLists.txt           // CMake ì„¤ì • íŒŒì¼
+¦¢
+¦§¦¡¦¡ src/                     // ¼Ò½º ÄÚµå
+¦¢   ¦§¦¡¦¡ main.cpp             // ÇÁ·Î±×·¥ ÁøÀÔÁ¡
+¦¢   ¦§¦¡¦¡ object/              // °´Ã¼ °ü·Ã ÆÄÀÏ
+¦¢   ¦¢   ¦§¦¡¦¡ ATM.cpp          // ATM Å¬·¡½º ±¸Çö
+¦¢   ¦¢   ¦§¦¡¦¡ ATM.h            // ATM Å¬·¡½º Çì´õ
+¦¢   ¦¢   ¦§¦¡¦¡ User.cpp         // User Å¬·¡½º ±¸Çö
+¦¢   ¦¢   ¦¦¦¡¦¡ User.h           // User Å¬·¡½º Çì´õ
+¦¢   ¦¦¦¡¦¡ strategy/            // Àü·« °ü·Ã ÆÄÀÏ
+¦¢       ¦§¦¡¦¡ TransactionStrategy.h // Àü·« ÀÎÅÍÆäÀÌ½º
+¦¢       ¦§¦¡¦¡ WithdrawalStrategy.cpp // ÀÎÃâ Àü·« ±¸Çö
+¦¢       ¦§¦¡¦¡ WithdrawalStrategy.h
+¦¢       ¦§¦¡¦¡ DepositStrategy.cpp    // ÀÔ±İ Àü·« ±¸Çö
+¦¢       ¦§¦¡¦¡ DepositStrategy.h
+¦¢       ¦§¦¡¦¡ TransferStrategy.cpp    // ÀÌÃ¼ Àü·« ±¸Çö
+¦¢       ¦¦¦¡¦¡ TransferStrategy.h
+¦¢
+¦§¦¡¦¡ tests/                   // Å×½ºÆ® ÄÚµå
+¦¢   ¦§¦¡¦¡ ATMTest.cpp          // ATM Å¬·¡½º Å×½ºÆ®
+¦¢   ¦§¦¡¦¡ WithdrawalTest.cpp   // ÀÎÃâ Àü·« Å×½ºÆ®
+¦¢   ¦§¦¡¦¡ DepositTest.cpp      // ÀÔ±İ Àü·« Å×½ºÆ®
+¦¢   ¦¦¦¡¦¡ TransferTest.cpp     // ÀÌÃ¼ Àü·« Å×½ºÆ®
+¦¢
+¦§¦¡¦¡ docs/                    // ¹®¼­È­
+¦¢   ¦§¦¡¦¡ design.md            // ¼³°è ¹®¼­
+¦¢   ¦§¦¡¦¡ user_manual.md       // »ç¿ëÀÚ ¸Å´º¾ó
+¦¢   ¦¦¦¡¦¡ api_reference.md      // API ·¹ÆÛ·±½º
+¦¢
+¦¦¦¡¦¡ CMakeLists.txt           // CMake ¼³Á¤ ÆÄÀÏ

@@ -20,9 +20,13 @@ private:
     vector<History*> history_list;
     vector<Account*> user_account_list;
     vector<Card*> user_card_list;
+    vector<ATM*> atm_list;
     
 public:
     ATM* p_atm;
+    const vector<Bank*>& getBankList() const {return bank_list;}
+    const std::vector<ATM*>& getATMList() const;  // atm_list 반환
+    const std::vector<Account*>& getAccountList() const;  // atm_list 반환
     bool is_inserted=false;
     bool p_is_admin;
     ATMInterface();
@@ -44,11 +48,13 @@ public:
     void append_user_account(Account* account);
     void update_card(Card* card);
     Bank* choiceBank(bool is_single, Bank* bank);
+    Bank* choiceBanking(bool is_single, Bank* bank);
     Card* choiceCard();
     Account* choiceAccount();
     Account* createAccount();
     Card* matchcard(Bank* bank, string card_numm, string pw);
-    void insert_cach(MoneyDict* moneydict);
+    int insert_cach(MoneyDict* moneydictm, bool is_initial);
+    int insert_cache(MoneyDict* moneydictm, bool is_initial);
     void insert_check();
     void atm_to_account();
     int withdraw();
@@ -59,6 +65,8 @@ public:
     void print_by_session(Session* session);
     void print_by_atm();
     void export_by_atm();
+    int append_bank(string bank_name);
+    ATM* append_ATM();
 };
 
 #endif 

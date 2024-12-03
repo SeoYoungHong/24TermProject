@@ -1,93 +1,103 @@
 // MoneyDict.cpp
 #include "MoneyDict.h"
 using namespace std;
+
+
 MoneyDict::MoneyDict()
-    : check_count(0), cash_count(0), total_amount(0), cash_amount(0) {
-    // È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
+    : check_count(0), cash_count(0), total_amount(0), cash_amount(0),isKorean(false) {
     cashes[1000] = 0;
     cashes[5000] = 0;
     cashes[10000] = 0;
     cashes[50000] = 0;
 }
 
-// ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
+void MoneyDict::resetCash() {
+    for (auto& pair : cashes) {
+        pair.second = 0; // ¸ğµç ÁöÆó °³¼ö¸¦ 0À¸·Î ÃÊ±âÈ­
+    }
+}
+
+void MoneyDict::setLanguageState(bool isKorean) {
+    this->isKorean = isKorean;
+}
+
+
 void MoneyDict::addCash(int denomination, int count) {
     if (cashes.find(denomination) != cashes.end()) {
         cashes[denomination] += count;
         updateTotals();
     } else {
-        std::cerr << "Error: Invalid denomination.\n";
-        return; // ì¶”ê°€ ì²˜ë¦¬
+        std::cerr << (isKorean ? "À¯È¿ÇÏÁö ¾ÊÀº ÁöÆó ¾×¸é°¡:\n" : "Error: Invalid denomination.\n");
+        return; // Ãß°¡ Ã³¸®
     }
 }
 
-// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+
 void MoneyDict::removeCash(int denomination, int count) {
     if (cashes.find(denomination) != cashes.end()) {
         if (cashes[denomination] >= count) {
             cashes[denomination] -= count;
             updateTotals();
         } else {
-            std::cout << "ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.\n";
+            std::cout << "À¯È¿ÇÏÁö ¾ÊÀº È­Æó ´ÜÀ§ÀÔ´Ï´Ù.\n";
         }
     } else {
-        std::cout << "ï¿½ï¿½È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ô´Ï´ï¿½.\n";
+        std::cout << "Á¦°ÅÇÏ·Á´Â ¼ö·®ÀÌ ÇöÀç º¸À¯ ¼ö·®º¸´Ù ¸¹½À´Ï´Ù.\n";
     }
 }
 
-// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+
 int MoneyDict::getCashCount() const {
     return cash_count;
 }
 
-// ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¾ï¿½ ï¿½ï¿½È¯
+
 int MoneyDict::getCashAmount() const {
     return cash_amount;
 }
 
-// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+
 const std::map<int, int>& MoneyDict::getCashes() const {
     return cashes;
 }
 
-// ï¿½ï¿½Ç¥ ï¿½ß°ï¿½
+
 void MoneyDict::addCheck(int amount) {
     if (amount >= 100000) {
         checks.push_back(amount);
         check_count++;
         updateTotals();
     } else {
-        std::cout << "ï¿½ï¿½È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ ï¿½İ¾ï¿½ï¿½Ô´Ï´ï¿½. 100,000ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½Õ´Ï´ï¿½.\n";
     }
 }
 
-// ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½
+
 void MoneyDict::removeCheck(int index) {
     if (index >= 0 && index < checks.size()) {
         checks.erase(checks.begin() + index);
         check_count--;
         updateTotals();
     } else {
-        std::cout << "ï¿½ï¿½È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ ï¿½Îµï¿½ï¿½ï¿½ï¿½Ô´Ï´ï¿½.\n";
+        std::cout << "À¯È¿ÇÏÁö ¾ÊÀº ¼öÇ¥ ÀÎµ¦½ºÀÔ´Ï´Ù.\n";
     }
 }
 
-// ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+
 int MoneyDict::getCheckCount() const {
     return check_count;
 }
 
-// ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+
 const std::vector<int>& MoneyDict::getChecks() const {
     return checks;
 }
 
-// ï¿½Ñ¾ï¿½ ï¿½ï¿½È¯
+
 int MoneyDict::getTotalAmount() const {
     return total_amount;
 }
 
-// ï¿½Õ°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+
 void MoneyDict::updateTotals() {
     cash_count = 0;
     cash_amount = 0;
@@ -104,19 +114,22 @@ void MoneyDict::updateTotals() {
     }
 }
 
-// ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ß°ï¿½
+
 void MoneyDict::printChecks() const {
-    std::cout << "ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½:\n";
+    std::cout << "¼öÇ¥ ¸ñ·Ï:\n";
     for (size_t i = 0; i < checks.size(); ++i) {
-        std::cout << "[" << i + 1 << "] ï¿½İ¾ï¿½: " << checks[i] << "ï¿½ï¿½\n";
+        std::cout << "[" << i+1 << "] ±İ¾×: " << checks[i] << "¿ø\n";
     }
 }
 
-// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ß°ï¿½
+
 void MoneyDict::printCashes() const {
-    std::cout << "ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½:\n";
+    std::cout << (isKorean ? "Çö±İ ¸ñ·Ï:\n" : "Cash list:\n");
     for (const auto& pair : cashes) {
-        std::cout << "ï¿½İ¾ï¿½: " << pair.first << "ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½: " << pair.second << "ï¿½ï¿½\n";
+        std::cout << (isKorean ? "±İ¾×: " : "Denomination: ") 
+                << pair.first 
+                << (isKorean ? "¿ø, °³¼ö: " : " KRW, Count: ") 
+                << pair.second << (isKorean ? "Àå\n" : "\n");
     }
 }
 
@@ -133,52 +146,51 @@ MoneyDict MoneyDict::operator+(const MoneyDict& other) const {
 }
 
 bool MoneyDict::canPay(int amount) {
-    std::map<int, int> temp_cashes = cashes; // ì›ë³¸ cashesë¥¼ ë³´ì¡´
+    std::map<int, int> temp_cashes = cashes; // ¿øº» cashes¸¦ º¸Á¸
     int remaining = amount;
 
-    // í° ë‹¨ìœ„ë¶€í„° í™•ì¸
+    // Å« ´ÜÀ§ºÎÅÍ È®ÀÎ
     for (auto it = temp_cashes.rbegin(); it != temp_cashes.rend(); ++it) {
         int denomination = it->first;
         int& available_count = it->second;
 
-        int needed = remaining / denomination; // í•„ìš”í•œ ì§€í ìˆ˜
-        int to_use = std::min(needed, available_count); // ì‹¤ì œ ì‚¬ìš©í•  ìˆ˜ ìˆëŠ” ì§€í ìˆ˜
-        remaining -= to_use * denomination; // ë‚¨ì€ ê¸ˆì•¡ ê°±ì‹ 
+        int needed = remaining / denomination; // ÇÊ¿äÇÑ ÁöÆó ¼ö
+        int to_use = std::min(needed, available_count); // ½ÇÁ¦ »ç¿ëÇÒ ¼ö ÀÖ´Â ÁöÆó ¼ö
+        remaining -= to_use * denomination; // ³²Àº ±İ¾× °»½Å
 
-        if (remaining == 0) break; // ë” ì´ìƒ ì§€ë¶ˆí•  ê¸ˆì•¡ì´ ì—†ìœ¼ë©´ ì¢…ë£Œ
+        if (remaining == 0) break; // ´õ ÀÌ»ó ÁöºÒÇÒ ±İ¾×ÀÌ ¾øÀ¸¸é Á¾·á
     }
 
-    return (remaining == 0); // ë‚¨ì€ ê¸ˆì•¡ì´ 0ì´ë©´ ì§€ê¸‰ ê°€ëŠ¥
+    return (remaining == 0); // ³²Àº ±İ¾×ÀÌ 0ÀÌ¸é Áö±Ş °¡´É
 }
 
 MoneyDict MoneyDict::pay(int amount) {
-    MoneyDict paid_money; // ë°˜í™˜í•  ì§€ê¸‰ëœ ê¸ˆì•¡ ì •ë³´ë¥¼ ë‹´ì„ ê°ì²´
+    MoneyDict paid_money; // ¹İÈ¯ÇÒ Áö±ŞµÈ ±İ¾× Á¤º¸¸¦ ´ãÀ» °´Ã¼
 
     if (!canPay(amount)) {
-        std::cout << "Cannot pay the amount: " << amount << "\n";
-        return paid_money; // ë¹ˆ ê°ì²´ ë°˜í™˜
+        std::cout << (isKorean ? "ÁöºÒÇÒ ¼ö ¾ø´Â ±İ¾×ÀÔ´Ï´Ù:" : "Cannot pay the amount: ")<< amount<< (isKorean ? "\n" : " \n");
+        return paid_money; // ºó °´Ã¼ ¹İÈ¯
     }
 
     int remaining = amount;
 
-    // í° ë‹¨ìœ„ë¶€í„° ì‹¤ì œ ì°¨ê°
+    // Å« ´ÜÀ§ºÎÅÍ ½ÇÁ¦ Â÷°¨
     for (auto it = cashes.rbegin(); it != cashes.rend(); ++it) {
         int denomination = it->first;
         int& available_count = it->second;
 
-        int needed = remaining / denomination; // í•„ìš”í•œ ì§€í ìˆ˜
-        int to_use = std::min(needed, available_count); // ì‹¤ì œ ì‚¬ìš©í•  ìˆ˜ ìˆëŠ” ì§€í ìˆ˜
-        available_count -= to_use; // ì‹¤ì œ ì§€í ì°¨ê°
-        remaining -= to_use * denomination; // ë‚¨ì€ ê¸ˆì•¡ ê°±ì‹ 
+        int needed = remaining / denomination; // ÇÊ¿äÇÑ ÁöÆó ¼ö
+        int to_use = std::min(needed, available_count); // ½ÇÁ¦ »ç¿ëÇÒ ¼ö ÀÖ´Â ÁöÆó ¼ö
+        available_count -= to_use; // ½ÇÁ¦ ÁöÆó Â÷°¨
+        remaining -= to_use * denomination; // ³²Àº ±İ¾× °»½Å
 
-        // ì§€ê¸‰ëœ ì§€íë¥¼ paid_money ê°ì²´ì— ì¶”ê°€
+        // Áö±ŞµÈ ÁöÆó¸¦ paid_money °´Ã¼¿¡ Ãß°¡
         paid_money.addCash(denomination, to_use);
 
-        if (remaining == 0) break; // ë” ì´ìƒ ì§€ë¶ˆí•  ê¸ˆì•¡ì´ ì—†ìœ¼ë©´ ì¢…ë£Œ
+        if (remaining == 0) break; // ´õ ÀÌ»ó ÁöºÒÇÒ ±İ¾×ÀÌ ¾øÀ¸¸é Á¾·á
     }
 
-    updateTotals(); // ì´ì•¡ ì—…ë°ì´íŠ¸
-    std::cout << "Paid " << amount << " successfully.\n";
-    return paid_money; // ì§€ê¸‰ëœ ê¸ˆì•¡ ë°˜í™˜
+    updateTotals(); // ÃÑ¾× ¾÷µ¥ÀÌÆ®
+    return paid_money; // Áö±ŞµÈ ±İ¾× ¹İÈ¯
 }
 

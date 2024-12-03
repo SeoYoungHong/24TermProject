@@ -2,30 +2,34 @@
 #define SESSION_H
 
 #include <string>
-#include <stdexcept> // ì˜ˆì™¸ ì²˜ë¦¬ë¥¼ ìœ„í•´ ì¶”ê°€
+#include <stdexcept> // ¿¹¿Ü Ã³¸®¸¦ À§ÇØ Ãß°¡
 
 class Session {
 private:
     static int session_counter;
-    std::string session_id;                     // ì„¸ì…˜ì˜ ê³ ìœ  ID
-    int withdraw_count;                         // í˜„ì¬ ì„¸ì…˜ì—ì„œì˜ ì¶œê¸ˆ íšŸìˆ˜
-    const int withdraw_count_threshold = 3;     // ì¶œê¸ˆ íšŸìˆ˜ í•œë„
+    std::string session_id;                     // ¼¼¼ÇÀÇ °íÀ¯ ID
+    int tranjection_count;                         // ÇöÀç ¼¼¼Ç¿¡¼­ÀÇ Ãâ±İ È½¼ö
+    const int tranjection_count_threshold = 3;     // Ãâ±İ È½¼ö ÇÑµµ
 
 public:
-    // ìƒì„±ì
+    // »ı¼ºÀÚ
+    
     Session();
 
-    // ì†Œë©¸ì
+    // ¼Ò¸êÀÚ
     ~Session();
 
-    // ì¶œê¸ˆ íšŸìˆ˜ ì¦ê°€
-    void incrementWithdrawCount();
-
-    // ì¶œê¸ˆ íšŸìˆ˜ ë°˜í™˜
-    int getWithdrawCount() const;
-
-    // ì„¸ì…˜ ID ë°˜í™˜
     std::string getSessionID() const;
+
+    // Ãâ±İ È½¼ö Áõ°¡
+    bool incrementWithdrawCount();
+
+    // Ãâ±İ È½¼ö ¹İÈ¯
+    int getWithdrawCount() const;
+    
+
+    // ¼¼¼Ç ID ¹İÈ¯
+    
 };
 
 #endif // SESSION_H

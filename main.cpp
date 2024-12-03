@@ -12,59 +12,259 @@ int tranjection_transfer_page(ATMInterface* atm_interface);
 int go_and_stop_page(ATMInterface* atm_interface);
 int print_page(ATMInterface* atm_interface);
 int card_account_setup_page(ATMInterface* atm_interface);
+int bank_setting(ATMInterface* atm_interface);
+int atm_setting(ATMInterface* atm_interface);
+int seup_page(ATMInterface* atm_interface);
+void displaySnapshot(ATMInterface* atm_interface); // ¼±¾ð Ãß°¡
+void displayAccountSnapshot(ATMInterface* atm_interface); // ¼±¾ð Ãß°¡
+
+
+std::vector<std::string> global_card_numbers; // ¸ðµç Ä«µå ¹øÈ£¸¦ ÀúÀåÇÏ´Â Àü¿ª ¸®½ºÆ® Ãß°¡
 
 int main() {
-    char choice;
-    cout << "process start"<<endl;
     ATMInterface* atm_interface = new ATMInterface();
-    cout << "ATM System Initializing...\n";
 
     while (true) {
-        if(atm_interface->p_atm->language_state){
-            cout << "1. ì¹´ë“œ/ ê³„ì¢Œ ì„¤ì • || 2. ì¹´ë“œì‚½ìž… || q. Exit || l. change language "<<endl;
-            cout << "í•œê¸€: ";
-        }else{
-            cout << "1. Card/Account Setup || 2. Insert Card || q. Exit || l. change language "<<endl;
+        char choice;
+        cout << "ÇÁ·Î±×·¥ ¸í·ÉÀ» ÀÔ·ÂÇÏ¼¼¿ä (1: ÃÊ±â ¼³Á¤, /: ½º³À¼¦, q: Á¾·á): ";
+        cin >> choice;
+
+        if (choice == 'q') {
+            delete atm_interface;  // ¸Þ¸ð¸® ÇØÁ¦
+            break;
+        } else if (choice == '1') {
+            seup_page(atm_interface);
+        } 
+        else if (choice == '/') {
+        // ATM ¹× °èÁÂ ½º³À¼¦ Ãâ·Â
+        displaySnapshot(atm_interface);
+        displayAccountSnapshot(atm_interface);
+        }
+        else {
+            cout << "Àß¸øµÈ ÀÔ·ÂÀÔ´Ï´Ù. ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä." << endl;
+        }
+    }
+
+    return 0;
+}
+
+void displaySnapshot(ATMInterface* atm_interface) {
+    // ÇÑ±¹¾î Ãâ·Â
+    std::cout << "===== ATM ½º³À¼¦ =====" << std::endl;
+
+    const auto& atm_list = atm_interface->getATMList();
+    if (atm_list.empty()) {
+        std::cout << "ÇöÀç µî·ÏµÈ ATMÀÌ ¾ø½À´Ï´Ù." << std::endl;
+        return;
+    }
+
+    for (const auto& atm : atm_list) {
+        std::cout << "ATM [½Ã¸®¾ó ¹øÈ£: " << atm->serial_number << "] ";
+        atm->remained_money->setLanguageState(true); // Ç×»ó ÇÑ±¹¾î ¼³Á¤
+        atm->remained_money->printCashes();
+    }
+    std::cout << std::endl;
+}
+
+void displayAccountSnapshot(ATMInterface* atm_interface) {
+    // ÇÑ±¹¾î Ãâ·Â
+    std::cout << "===== °èÁÂ ½º³À¼¦ =====" << std::endl;
+
+    const auto& accounts = atm_interface->getAccountList();
+    if (accounts.empty()) {
+        std::cout << "ÇöÀç µî·ÏµÈ °èÁÂ°¡ ¾ø½À´Ï´Ù." << std::endl;
+        return;
+    }
+
+    for (const auto& account : accounts) {
+        Bank* bank = account->get_bank();
+        std::cout << "°èÁÂ [»ç¿ëÀÚ: " << account->get_user_name()
+                  << ", ÀºÇà: " << bank->getBankName() << ", °èÁÂ¹øÈ£: " << account->get_account_number()
+                  << "] ÀÜ¾×: " << account->get_amount() << "¿ø" << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+
+void mainMenuHandler(ATMInterface* atm_interface) {
+    char choice;
+    if (atm_interface->p_atm == nullptr) {
+        choice = '1';
+    } else {
+        if (atm_interface->p_atm->language_state) {
+            cout << " 1. Ä«µå»ðÀÔ || q. ³ª°¡±â || l. ¾ð¾î ¹Ù²Ù±â" << endl;
+            cout << "ÀÔ·ÂÇÏ¼¼¿ä: ";
+        } else {
+            cout << " 1. Insert Card || q. quit || l. change language" << endl;
             cout << "Enter your choice: ";
         }
-        
         cin >> choice;
+    }
+
+    switch (choice) {
+        case 'q':
+            cout << "start initail setting" << endl;
+            seup_page(atm_interface);
+            break;
+        case '1':
+            atm_interface->insertCard();
+            if (atm_interface->is_inserted) {
+                if (atm_interface->p_is_admin) {
+                    admin_page(atm_interface);
+                } else {
+                    tranjection_select_page(atm_interface);
+                }
+            }
+            break;
+        case 'l':
+            atm_interface->changeLanguage();
+            mainMenuHandler(atm_interface);
+            break;
+        case '/':
+            displaySnapshot(atm_interface);
+            displayAccountSnapshot(atm_interface);
+            mainMenuHandler(atm_interface);
+            break;
+        default:
+            if (atm_interface->p_atm->language_state) {
+                cout << "Àß¸øµÈ ¼±ÅÃÀÔ´Ï´Ù. ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä.\n";
+                mainMenuHandler(atm_interface);
+            } else {
+                cout << "Invalid choice. Please try again.\n";
+                mainMenuHandler(atm_interface);
+            }
+    }
+}
+
+
+void select_atm(ATMInterface* atm_interface) {
+    const auto& atm_list = atm_interface->getATMList();  // Getter·Î atm_list Á¢±Ù
+    if (atm_list.empty()) {
+        cout << "¼±ÅÃÇÒ ATMÀÌ ¾ø½À´Ï´Ù. ¸ÕÀú ATMÀ» Ãß°¡ÇÏ¼¼¿ä." << endl;
+        return;
+    }
+
+    cout << "»ç¿ë °¡´ÉÇÑ ATM ¸®½ºÆ®:" << endl;
+    for (size_t i = 0; i < atm_list.size(); ++i) {
+        cout << i + 1 << ". Serial Number: " << atm_list[i]->serial_number << endl;
+    }
+
+    cout << "¼±ÅÃÇÒ ATM ¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä: ";
+    size_t choice;
+    cin >> choice;
+
+    if (choice >= 1 && choice <= atm_list.size()) {
+        atm_interface->p_atm = atm_list[choice - 1];
+        cout << "ATM(Serial Number: " << atm_interface->p_atm->serial_number << ")ÀÌ ¼±ÅÃµÇ¾ú½À´Ï´Ù." << endl;
+    } else {
+        cout << "Àß¸øµÈ ¼±ÅÃÀÔ´Ï´Ù. ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä." << endl;
+    }
+}
+
+int seup_page(ATMInterface* atm_interface) {
+    char choice;
+    while (true) {
+        cout << "1. ÀºÇà ¼¼ÆÃ || 2. ATM ¼¼ÆÃ || 3. °èÁÂ, Ä«µå ¼¼ÆÃ || 4. ATM ¼±ÅÃ || q. ³ª°¡±â" << endl;
+        cout << "ÀÔ·ÂÇÏ¼¼¿ä : ";
+
+        int result = 0;
+        cin >> choice;
+
         switch (choice) {
             case '1':
-                card_account_setup_page(atm_interface);
+                result = bank_setting(atm_interface);
+                if (result == 0) {
+                    cout << "ÀºÇà Ãß°¡/¼¼ÆÃ¿¡ ½ÇÆÐÇß½À´Ï´Ù" << endl;
+                }
                 break;
             case '2':
-                atm_interface->insertCard();
-                if(atm_interface->is_inserted){
-                    if(atm_interface->p_is_admin){
-                        admin_page(atm_interface);
-                    }else{
-                        tranjection_select_page(atm_interface);
-                    }
+                result = atm_setting(atm_interface);
+                if (result == 0) {
+                    cout << "ATM Ãß°¡/¼¼ÆÃ¿¡ ½ÇÆÐÇß½À´Ï´Ù" << endl;
+                }
+                break;
+            case '3':
+                result = card_account_setup_page(atm_interface);
+                if (result == 0) {
+                    cout << "Ä«µå Ãß°¡/¼¼ÆÃ¿¡ ½ÇÆÐÇß½À´Ï´Ù." << endl;
                 }
                 
                 break;
             case '4':
-                delete atm_interface;  // ë©”ëª¨ë¦¬ í•´ì œ
-                return 0;
-            case 'l':
-                atm_interface->changeLanguage();
+                select_atm(atm_interface);
+                if (atm_interface->p_atm != nullptr) {
+                    mainMenuHandler(atm_interface); // ¼±ÅÃµÈ ATM¿¡¼­ ÀÛ¾÷ ¼öÇà
+                }
                 break;
+            case '/':
+                displaySnapshot(atm_interface);
+                displayAccountSnapshot(atm_interface);
+            break;
+            case 'q':
+                return 0; // ÃÊ±âÈ­ ÆäÀÌÁö Á¾·á
+            
             default:
-                cout << "Invalid choice. Please try again.\n";
-        }    
+                cout << "Àß¸øµÈ ¼±ÅÃÀÔ´Ï´Ù. ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä." << endl;
+        }
     }
-    return 0;
 }
+
+int bank_setting(ATMInterface* atm_interface) {
+    cout << "Ãß°¡ÇÒ ÀºÇà¸íÀ» ÀÔ·ÂÇØÁÖ¼¼¿ä: ";
+    string bank_name;
+
+    // std::getline()À¸·Î °ø¹é Æ÷ÇÔ ÀÔ·Â ¹Þ±â
+    cin.ignore(); // ÀÌÀü ÀÔ·Â ¹öÆÛÀÇ ÀÜ¿© µ¥ÀÌÅÍ¸¦ Á¦°Å
+    std::getline(cin, bank_name);
+
+    int result = atm_interface->append_bank(bank_name);
+    if (result == 0) {
+    } else {
+        cout << "ÀºÇà '" << bank_name << "' Ãß°¡/¼¼ÆÃ¿¡ ¼º°øÇß½À´Ï´Ù" << endl;
+    }
+    return result;
+}
+
+int atm_setting(ATMInterface* atm_interface) {
+    ATM* atm = atm_interface->append_ATM();
+    if (atm != nullptr) {
+        // ÇöÀç ATMÀÌ ¾øÀ¸¸é ÀÚµ¿À¸·Î ¼³Á¤
+        if (atm_interface->p_atm == nullptr) {
+            atm_interface->p_atm = atm;
+        } else {
+            // ±âÁ¸ ATMÀÌ ÀÖÀ» °æ¿ì, Ç×»ó »õ ATMÀ¸·Î ±³Ã¼
+            atm_interface->p_atm = atm;
+        }
+
+        // ATMÀÇ ÃÊ±â Ä³½Ã »ðÀÔ
+        atm_interface->insert_cache(atm->remained_money, true);
+        return 1;
+    } else {
+        return 0; // ATM »ý¼º ½ÇÆÐ ½Ã
+    }
+}  
+    
 int card_account_setup_page(ATMInterface* atm_interface){
-    atm_interface->createCard();
-    return 0;
+    Card* card =atm_interface->createCard();
+    if(card==nullptr){
+        return 0;
+    }else{
+        return 1;
+    }
+    
 }
+
 
 int tranjection_select_page(ATMInterface* atm_interface){
     char choice;
-    cout << "1. insert money ||2. withdraw money||3. fransfer money || q. Exit || l. change language "<<endl;
-    cout << "Enter your choice: ";
+    if(atm_interface->p_atm->language_state){
+        cout << "1. ÀÔ±Ý || 2. Ãâ±Ý || 3. ¼Û±Ý || q. ³ª°¡±â || l. ¾ð¾î ¹Ù²Ù±â "<<endl;
+        cout << "ÀÔ·ÂÇÏ¼¼¿ä: ";
+        
+    }else{
+        cout << "1. insert money ||2. withdraw money||3. fransfer money || q. Exit || l. change language "<<endl;
+        cout << "Enter your choice: ";
+    }
     cin >> choice;
 
     switch (choice) {
@@ -78,12 +278,25 @@ int tranjection_select_page(ATMInterface* atm_interface){
             tranjection_transfer_page(atm_interface);
             break;
         case 'q':
+            print_page(atm_interface);
             break;
         case 'l':
             atm_interface->changeLanguage();
+            tranjection_select_page(atm_interface);
+            break;
+        case '/':
+            displaySnapshot(atm_interface);
+            displayAccountSnapshot(atm_interface);
+            tranjection_select_page(atm_interface);
             break;
         default:
-            cout << "Invalid choice. Please try again.\n";
+            if(atm_interface->p_atm->language_state){
+                cout << "Àß¸øµÈ ¼±ÅÃÀÔ´Ï´Ù. ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä.\n";
+                tranjection_select_page(atm_interface);
+            }else{
+                cout << "Invalid choice. Please try again.\n";
+                tranjection_select_page(atm_interface);
+            }
     }
     if(atm_interface->is_inserted){
         go_and_stop_page(atm_interface);
@@ -99,12 +312,17 @@ int tranjection_deposit_money_page(ATMInterface* atm_interface){
     
     while(true){
         char choice;
-        cout << "1. insert cach ||2. insert check ||3. deposit || q. Exit || l. change language "<<endl;
-        cout << "Enter your choice: ";
+        if(atm_interface->p_atm->language_state){
+            cout << "1. Çö±Ý ³Ö±â || 2. ¼öÇ¥ ³Ö±â || 3. ÀÔ±Ý || q. ³ª°¡±â || l. ¾ð¾î ¹Ù²Ù±â "<<endl;
+            cout << "ÀÔ·ÂÇÏ¼¼¿ä: ";
+        }else{
+            cout << "1. insert cach || 2. insert check ||3. deposit || q. Exit || l. change language "<<endl;
+            cout << "Enter your choice: ";
+        }
         cin >> choice;
         switch (choice) {
             case '1':
-                atm_interface->insert_cach(atm_interface->p_atm->slot_money);
+                atm_interface->insert_cach(atm_interface->p_atm->slot_money,false);
                 break;
             case '2':
                 atm_interface->insert_check();
@@ -113,12 +331,25 @@ int tranjection_deposit_money_page(ATMInterface* atm_interface){
                 atm_interface->atm_to_account();
                 return 0;
             case 'q':
+                tranjection_select_page(atm_interface);
                 return 0;
             case 'l':
                 atm_interface->changeLanguage();
+                tranjection_deposit_money_page(atm_interface);
+                break;
+            case '/':
+                displaySnapshot(atm_interface);
+                displayAccountSnapshot(atm_interface);
+                tranjection_deposit_money_page(atm_interface);
                 break;
             default:
-                cout << "Invalid choice. Please try again.\n";
+                if(atm_interface->p_atm->language_state){
+                    cout << "Àß¸øµÈ ¼±ÅÃÀÔ´Ï´Ù. ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä.\n";
+                    tranjection_deposit_money_page(atm_interface);
+                }else{
+                    cout << "Invalid choice. Please try again.\n";
+                    tranjection_deposit_money_page(atm_interface);
+                }
         }
     }
     return 0;
@@ -127,17 +358,31 @@ int tranjection_deposit_money_page(ATMInterface* atm_interface){
 
 
 //account -> slot
-int tranjection_withdraw_page(ATMInterface* atm_interface){
-    atm_interface->withdraw();
+int tranjection_withdraw_page(ATMInterface* atm_interface) {
+
+
+    // Ãâ±Ý ·ÎÁ÷ ½ÇÇà
+     int result = atm_interface->withdraw();
+        if (result == 3) {
+        // ¼¼¼Ç Á¾·á ÈÄ ¸ÞÀÎ ¸Þ´º·Î º¹±Í
+        print_page(atm_interface);
+    }else{
     return 0;
+    }
 }
+
 
 //1. slot -> account
 //2. account -> account
 int tranjection_transfer_page(ATMInterface* atm_interface){
     char choice;
-    cout << "1. slot to account ||2. account to account || q. Exit || l. change language "<<endl;
-    cout << "Enter your choice: ";
+    if(atm_interface->p_atm->language_state){
+        cout << "1. ½½·Ô¿¡¼­ °èÁÂ·Î ||2. °èÁÂ¿¡¼­ °èÁÂ·Î || q. ³ª°¡±â || l. ¾ð¾î ¹Ù²Ù±â "<<endl;
+        cout << "ÀÔ·ÂÇÏ¼¼¿ä: ";
+    }else{
+        cout << "1. slot to account ||2. account to account || q. Exit || l. change language "<<endl;
+        cout << "Enter your choice: ";
+    }
     cin >> choice;
     switch (choice) {
         case '1':
@@ -147,24 +392,42 @@ int tranjection_transfer_page(ATMInterface* atm_interface){
             atm_interface->account_to_account();
 
             break;
-        case '3':
-            return 0;
         case 'q':
+        print_page(atm_interface);
             return 0;
         case 'l':
             atm_interface->changeLanguage();
+            tranjection_transfer_page(atm_interface);
+            break;
+        case '/':
+            displaySnapshot(atm_interface);
+            displayAccountSnapshot(atm_interface);
+            tranjection_transfer_page(atm_interface);
             break;
         default:
-            cout << "Invalid choice. Please try again.\n";
+            if(atm_interface->p_atm->language_state){
+                cout << "Àß¸øµÈ ¼±ÅÃÀÔ´Ï´Ù. ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä.\n";
+                tranjection_transfer_page(atm_interface);
+            }else{
+                cout << "Invalid choice. Please try again.\n";
+                tranjection_transfer_page(atm_interface);
+            }
     }
     return 0;
 }
 
 int go_and_stop_page(ATMInterface* atm_interface){
     char choice;
-    cout << "1. more transaction || 2. print session history|| q. Exit || l. change language "<<endl;
-    cout << "Enter your choice: ";
+    if(atm_interface->p_atm->language_state){
+        cout << "1. ´õ °Å·¡ÇÏ±â || 2. ¼¼¼Ç ±â·Ï Ãâ·Â(³ª°¡±â) || l. ¾ð¾î ¹Ù²Ù±â "<<endl;
+        cout << "ÀÔ·ÂÇÏ¼¼¿ä: ";
+    }else{
+        cout << "1. more transaction || 2. print session history|| q. Exit || l. change language "<<endl;
+        cout << "Enter your choice: ";
+    }
     cin >> choice;
+
+
 
     switch (choice) {
         case '1':
@@ -175,10 +438,24 @@ int go_and_stop_page(ATMInterface* atm_interface){
             break;
         case 'l':
             atm_interface->changeLanguage();
+            go_and_stop_page(atm_interface);
+            break;
+        case 'q':
+            mainMenuHandler(atm_interface);
+            break;
+        case '/':
+            displaySnapshot(atm_interface);
+            displayAccountSnapshot(atm_interface);
+            go_and_stop_page(atm_interface);
             break;
         default:
-            cout << "Invalid choice. Please try again.\n";
-            go_and_stop_page(atm_interface);
+            if(atm_interface->p_atm->language_state){
+                cout << "Àß¸øµÈ ¼±ÅÃÀÔ´Ï´Ù. ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä.\n";
+                go_and_stop_page(atm_interface);
+            }else{
+                cout << "Invalid choice. Please try again.\n";
+                go_and_stop_page(atm_interface);
+            }
             break;
     }
     return 0;
@@ -188,44 +465,87 @@ int print_page(ATMInterface* atm_interface){
     char choice;
     Session* presentsession = atm_interface->p_atm->present_session;
     atm_interface->print_by_session(presentsession);
-    cout << "1. retry || q. Exit || l. change language "<<endl;
-    cout << "Enter your choice: ";
+    if(atm_interface->p_atm->language_state){
+        cout << "1. Àç½Ãµµ || q. ³ª°¡±â || l. ¾ð¾î ¹Ù²Ù±â "<<endl;
+        cout << "ÀÔ·ÂÇÏ¼¼¿ä: ";
+    }else{
+        cout << "1. retry || q. Exit || l. change language "<<endl;
+        cout << "Enter your choice: ";
+    }
     cin >> choice;
+
 
     switch (choice) {
         case '1':
+            print_page(atm_interface);
             break;
         case 'q':
+            mainMenuHandler(atm_interface);
             break;
         case 'l':
             atm_interface->changeLanguage();
+            print_page(atm_interface);
+            break;
+        case '/':
+            displaySnapshot(atm_interface);
+            displayAccountSnapshot(atm_interface);
+            print_page(atm_interface);
             break;
         default:
-            cout << "Invalid choice. Please try again.\n";
+            if(atm_interface->p_atm->language_state){
+                cout << "Àß¸øµÈ ¼±ÅÃÀÔ´Ï´Ù. ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä.\n";
+                print_page(atm_interface);
+            }else{
+                cout << "Invalid choice. Please try again.\n";
+                print_page(atm_interface);
+            }
+
     }
     return 0;
 }
 
 int admin_page(ATMInterface* atm_interface){
     char choice;
-    cout << "1. show all of the tranjections || 2. export tranjections || q. Exit || l. change language "<<endl;
-    cout << "Enter your choice: ";
+    if(atm_interface->p_atm->language_state){
+        cout << "1. ¸ðµç °Å·¡ º¸±â ¹× °Å·¡ ³»º¸³»±â || q. ³ª°¡±â "<<endl;
+        cout << "ÀÔ·ÂÇÏ¼¼¿ä: ";
+    }else{
+        cout << "1. show all of the tranjections and export tranjections || q. Exit"<<endl;
+        cout << "Enter your choice: ";
+    }
     cin >> choice;
+
 
     switch (choice) {
         case '1':
             atm_interface->print_by_atm();
+            atm_interface->export_by_atm();
+            mainMenuHandler(atm_interface);
             break;
         case '2':
             atm_interface->export_by_atm();
+            mainMenuHandler(atm_interface);
             break;
         case 'q':
+            mainMenuHandler(atm_interface);
             break;
         case 'l':
             atm_interface->changeLanguage();
+            admin_page(atm_interface);
+            break;
+        case '/':
+            displaySnapshot(atm_interface);
+            displayAccountSnapshot(atm_interface);
+            admin_page(atm_interface);
             break;
         default:
-            cout << "Invalid choice. Please try again.\n";
+            if(atm_interface->p_atm->language_state){
+                cout << "Àß¸øµÈ ¼±ÅÃÀÔ´Ï´Ù. ´Ù½Ã ½ÃµµÇØÁÖ¼¼¿ä.\n";
+                admin_page(atm_interface);
+            }else{
+                cout << "Invalid choice. Please try again.\n";
+                admin_page(atm_interface);
+            }
     }
     return 0;
 }

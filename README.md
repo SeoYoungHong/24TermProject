@@ -1,8 +1,9 @@
 # 24TermProject
 
+## build 规过
 
-## build 氚╇矔
 mingw32-make
 
-## 鞁ろ枆氚╇矔
-build\outDebug.exe   
+## 角青规过
+
+build\outDebug.exe

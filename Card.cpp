@@ -1,17 +1,17 @@
 #include "Card.h"
-#include "Account.h"  // Account í´ë˜ìŠ¤ì˜ ì •ì˜ë¥¼ í¬í•¨
+#include "Account.h"  // Account Å¬·¡½ºÀÇ Á¤ÀÇ¸¦ Æ÷ÇÔ
 using namespace std;
-// ìƒì„±ì ì •ì˜
+// »ı¼ºÀÚ Á¤ÀÇ
 Card::Card(Account* account, bool is_admin, const std::string& card_number, const std::string& password)
     : p_account(account), p_is_admin(is_admin), p_card_number(card_number), p_password(password) {
     
     account->append_user_card(this);
     }
 
-// ì†Œë©¸ì ì •ì˜
+// ¼Ò¸êÀÚ Á¤ÀÇ
 Card::~Card() {
-    // p_accountì— ëŒ€í•œ ë©”ëª¨ë¦¬ í•´ì œë¥¼ í•´ì•¼ í•˜ëŠ” ê²½ìš°, ì´ê³³ì—ì„œ ì²˜ë¦¬
-    // ì˜ˆ: delete p_account; (p_accountê°€ Cardì˜ ì†Œìœ ìë¼ë©´)
+    // p_account¿¡ ´ëÇÑ ¸Ş¸ğ¸® ÇØÁ¦¸¦ ÇØ¾ß ÇÏ´Â °æ¿ì, ÀÌ°÷¿¡¼­ Ã³¸®
+    // ¿¹: delete p_account; (p_account°¡ CardÀÇ ¼ÒÀ¯ÀÚ¶ó¸é)
 }
 
 Account* Card::getAccount(){

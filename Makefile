@@ -1,25 +1,25 @@
-# ì»´íŒŒì¼ëŸ¬ì™€ í”Œë˜ê·¸ ì„¤ì •
+# ÄÄÆÄÀÏ·¯¿Í ÇÃ·¡±× ¼³Á¤
 CXX = g++
 CXXFLAGS = -mconsole -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wcast-align -Wconversion -Wsign-conversion -Wnull-dereference -g3 -O0
 
-# ì†ŒìŠ¤ íŒŒì¼ ë° ê°ì²´ íŒŒì¼
+# ¼Ò½º ÆÄÀÏ ¹× °´Ã¼ ÆÄÀÏ
 SRCS = main.cpp Account.cpp ATM.cpp ATMInterface.cpp Bank.cpp Card.cpp History.cpp MoneyDict.cpp Session.cpp
 OBJS = $(SRCS:.cpp=.o)
 
-# ì¶œë ¥ íŒŒì¼
+# Ãâ·Â ÆÄÀÏ
 TARGET = build/outDebug.exe
 
-# ê¸°ë³¸ ë¹Œë“œ íƒ€ê²Ÿ
+# ±âº» ºôµå Å¸°Ù
 all: $(TARGET)
 
-# ë§í¬ ë‹¨ê³„
+# ¸µÅ© ´Ü°è
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-# ê° ì†ŒìŠ¤ íŒŒì¼ì„ ê°œë³„ì ìœ¼ë¡œ ì»´íŒŒì¼
+# °¢ ¼Ò½º ÆÄÀÏÀ» °³º°ÀûÀ¸·Î ÄÄÆÄÀÏ
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# í´ë¦°ì—…
+# Å¬¸°¾÷
 clean:
 	rm -f $(OBJS) $(TARGET)

@@ -15,22 +15,25 @@ private:
     static int account_counter;
     string p_account_number;
     Bank* p_bank;
-    vector<Card*> user_card_list;
+    std::vector<std::string> user_card_list; // Ä«µå ¹øÈ£(¹®ÀÚ¿­)¸¸ ÀúÀå
     int amount;
-
+    string user_name; // À¯Àú ÀÌ¸§ Ãß°¡
+    std::string bank_name; // Áö±İ ¼öÁ¤ÇÑ ºÎºĞ: ÀºÇà ÀÌ¸§ Ãß°¡
 public:
-    // ìƒì„±ì (public)
-    Account(Bank* bank);
+    // »ı¼ºÀÚ (public)
+    Account(Bank* bank, const string& user_name);
 
-    // ì†Œë©¸ì (public)
+    // ¼Ò¸êÀÚ (public)
     ~Account();
 
-    // ì”ì•¡ ì—…ë°ì´íŠ¸ í•¨ìˆ˜ (ì˜¤íƒ€ ìˆ˜ì •: unpdate -> update)
+    // ÀÜ¾× ¾÷µ¥ÀÌÆ® ÇÔ¼ö (¿ÀÅ¸ ¼öÁ¤: unpdate -> update)
     void update_amount(int changed_amount);
     string get_account_number();
     void append_user_card(Card* card);
     int get_amount();
     Bank* get_bank();
+    string get_user_name() const; // À¯Àú ÀÌ¸§ ¹İÈ¯ ÇÔ¼ö Ãß°¡
+    std::string get_bank_name() const; // Áö±İ ¼öÁ¤ÇÑ ºÎºĞ: ÀºÇà ÀÌ¸§ ¹İÈ¯
 };
 
 #endif // ACCOUNT_H

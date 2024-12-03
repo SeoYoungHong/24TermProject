@@ -27,13 +27,13 @@ public:
     const int withdraw_amount_max = 50000;
     Session* present_session = nullptr;
     
-    // ìƒì„±ì (public)
+    // »ı¼ºÀÚ (public)
     ATM(Bank* bank, bool is_single, bool is_unilingual);
 
-    // ì†Œë©¸ì (public)
+    // ¼Ò¸êÀÚ (public)
     ~ATM();
 
-    // ì—…ë°ì´íŠ¸ í•¨ìˆ˜ë“¤
+    // ¾÷µ¥ÀÌÆ® ÇÔ¼öµé
     void reset_slot_money();
     void update_slot_money(MoneyDict* input_money);
     void update_remained_money(MoneyDict* input_money);

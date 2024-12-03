@@ -3,23 +3,23 @@
 
 #include <string>
 
-class Account; // ì „ë°© ì„ ì–¸ìœ¼ë¡œ ìˆœí™˜ ì°¸ì¡° ë°©ì§€
+class Account; // Àü¹æ ¼±¾ğÀ¸·Î ¼øÈ¯ ÂüÁ¶ ¹æÁö
 
 class Card {
 public:
-    // ë©¤ë²„ ë³€ìˆ˜
+    // ¸â¹ö º¯¼ö
     Account* p_account;
     bool p_is_admin;
     std::string p_card_number;
     std::string p_password;
 
-    // ìƒì„±ì
+    // »ı¼ºÀÚ
     Card(Account* account, bool is_admin, const std::string& card_number, const std::string& password);
 
-    // ì†Œë©¸ì
+    // ¼Ò¸êÀÚ
     ~Card();
 
-    // ë©¤ë²„ í•¨ìˆ˜
+    // ¸â¹ö ÇÔ¼ö
     Account* getAccount();
     std::string get_card_num();
     bool match_credentials(std::string card_num, std::string input_pw);
